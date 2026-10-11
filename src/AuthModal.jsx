@@ -19,6 +19,19 @@ export default function AuthModal({ onClose, onAuthenticated }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
+  const resetPassword = async () => {
+    setError(''); setMessage('');
+    if (!supabase) { setError('Supabase n’est pas configuré. Vérifiez les variables VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans Vercel.'); return; }
+    if (!email.trim()) { setError('Saisissez votre adresse e-mail ci-dessus, puis demandez le lien de réinitialisation.'); return; }
+    setBusy(true);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin });
+      if (resetError) throw resetError;
+      setMessage('Si cette adresse est enregistrée, un lien de réinitialisation vient d’être envoyé. Vérifiez aussi vos courriers indésirables.');
+    } catch (e) { setError(e?.message || 'Impossible d’envoyer le lien. Réessayez.'); }
+    finally { setBusy(false); }
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true); setError(''); setMessage('');
@@ -47,7 +60,13 @@ export default function AuthModal({ onClose, onAuthenticated }) {
         onClose();
       }
     } catch (e) {
-      setError(e?.message || 'Une erreur est survenue. Réessayez.');
+      const message = e?.message || 'Une erreur est survenue. Réessayez.';
+      const lower = message.toLowerCase();
+      if (lower.includes('database error saving new user') || lower.includes('schema cache') || (lower.includes('relation') && lower.includes('does not exist'))) {
+        setError('La base MOROTTO semble incomplète : appliquez les deux fichiers SQL de supabase/migrations dans Supabase → SQL Editor, dans l’ordre 202610110001 puis 202610110002, puis réessayez. Détail : ' + message);
+      } else if (lower.includes('invalid login credentials')) {
+        setError('E-mail ou mot de passe incorrect. Si vous venez de vous inscrire, confirmez d’abord l’e-mail reçu. Vous pouvez aussi demander un lien de réinitialisation ci-dessous.');
+      } else { setError(message); }
     } finally { setBusy(false); }
   };
 
@@ -69,6 +88,7 @@ export default function AuthModal({ onClose, onAuthenticated }) {
         {error && <p className="auth-error" role="alert">{error}</p>}
         {message && <p className="auth-message" role="status">{message}</p>}
         <button className="auth-submit" type="submit" disabled={busy}>{busy ? <><LoaderCircle className="spin" size={18}/> Connexion en cours…</> : <>{mode === 'signup' ? 'Créer mon compte' : 'Se connecter'} <ArrowRight size={17}/></>}</button>
+        {mode === 'login' && <button type="button" className="auth-reset" onClick={resetPassword} disabled={busy}>Mot de passe oublié ? Recevoir un lien</button>}
       </form>
       <p className="auth-privacy">Votre compte est géré par Supabase Auth. Les rôles sensibles sont vérifiés côté serveur et ne peuvent pas être choisis ici.</p>
     </section>
