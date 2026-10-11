@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { decryptSecret, logIntegrationUsage } from "../_lib/integration-vault.js";
+import { decryptSecret, logIntegrationUsage } from "../../server/integration-vault.js";
 
 const ACTOR_ID = "delectable_incubator~avito-ma-scraper---low-cost";
 const SOURCE = "authorized_import";
