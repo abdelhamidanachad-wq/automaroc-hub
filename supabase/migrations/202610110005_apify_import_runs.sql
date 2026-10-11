@@ -3,7 +3,11 @@
 create table if not exists public.scrape_runs (
   run_id text primary key,
   requested_by uuid not null references auth.users(id) on delete restrict,
-  target_url text not null check (target_url ~ '^https://([a-zA-Z0-9-]+\\.)*avito\\.ma(/|$)'),
+  target_url text not null check (
+    target_url like 'https://avito.ma/%'
+    or target_url like 'https://www.avito.ma/%'
+    or target_url like 'https://%.avito.ma/%'
+  ),
   status text not null default 'running'
     check (status in ('running','completed','failed','aborted','timed-out')),
   imported_count integer not null default 0 check (imported_count >= 0),
