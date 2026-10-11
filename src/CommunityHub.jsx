@@ -96,8 +96,8 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
     <div className="community-hero">
       <div className="community-hero-copy">
         <span className="community-eyebrow">L’ÉCOSYSTÈME AUTO MAROCAIN</span>
-        <h1>Tout ce qui fait avancer <em>la communauté.</em></h1>
-        <p>Comparez les offres publiées, trouvez des professionnels, échangez des conseils et lancez un itinéraire dans votre application GPS préférée.</p>
+        <h1>{t(language,'communityHeroTitle')}</h1>
+        <p>{t(language,'communityHeroDescription')}</p>
       </div>
       <div className="community-hero-mark"><Navigation size={34}/><span>MOROTTO</span><small>ENSEMBLE SUR LA ROUTE</small></div>
     </div>
@@ -109,9 +109,9 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
       <div className="route-actions"><a className="community-primary" href={destination.trim() ? 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(destination.trim()) : undefined} target="_blank" rel="noreferrer" onClick={e => { if (!destination.trim()) e.preventDefault(); }}><Navigation size={17}/> Itinéraire Google Maps <ExternalLink size={15}/></a><a className="community-secondary" href={destination.trim() ? 'https://waze.com/ul?q=' + encodeURIComponent(destination.trim()) + '&navigate=yes' : undefined} target="_blank" rel="noreferrer" onClick={e => { if (!destination.trim()) e.preventDefault(); }}><ArrowUpRight size={17}/> Ouvrir dans Waze <ExternalLink size={15}/></a></div>
       <div className="community-notice"><ShieldCheck size={18}/><span>Cette première intégration ouvre une navigation externe. Le guidage vocal, le trafic en direct et le recalcul d’itinéraire sont assurés par Google Maps ou Waze, pas directement dans MOROTTO.</span></div>
     </div> : <>
-      <div className="community-list-head"><div><h2>{sections.find(item => item[0] === section)?.[1]}</h2><p>Seules les entrées publiées par la base MOROTTO sont affichées ici.</p></div><button className="community-refresh" onClick={refresh} disabled={loading}><RefreshCw size={16}/> Actualiser</button></div>
+      <div className="community-list-head"><div><h2>{sections.find(item => item[0] === section)?.[1]}</h2><p>{t(language,'listingsOnly')}</p></div><button className="community-refresh" onClick={refresh} disabled={loading}><RefreshCw size={16}/> {t(language,'refresh')}</button></div>
       {section === 'insurance' && <div className="insurance-demo-filters"><div><label>{t(language,'brand')}</label><select value={vehicleBrand} onChange={e => { setVehicleBrand(e.target.value); const nextModel = moroccoPriceGuide.find(x => x.brand === e.target.value); if (nextModel) setVehicleModel(nextModel.model); }} >{brands.map(brand => <option key={brand}>{brand}</option>)}</select></div><div><label>{t(language,'model')}</label><select value={selectedGuide?.model || vehicleModel} onChange={e => setVehicleModel(e.target.value)}>{modelsForBrand.map(item => <option key={item.model} value={item.model}>{item.model}</option>)}</select></div><div><label>{t(language,'year')}</label><select value={vehicleYear} onChange={e => setVehicleYear(e.target.value)}>{Array.from({length: 2026-1998},(_,i)=>2026-i).map(year=><option key={year} value={year}>{year}</option>)}</select></div><p>{t(language,'demoInsuranceDisclaimer')}</p></div>}
-      {section !== 'community' && <label className="community-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Rechercher une offre, une ville, une marque…"/></label>}
+      {section !== 'community' && <label className="community-search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder={t(language,'searchOffer')}/></label>}
       {error && <div className="community-notice"><ShieldCheck size={18}/><span>{error}</span></div>}
       {loading ? <div className="community-empty">Chargement des données publiées…</div> : filtered.length ? <div className="community-cards">
         {filtered.map(item => {
