@@ -42,7 +42,11 @@ export default function AuthModal({ onClose, onAuthenticated }) {
       });
       if (oauthError) throw oauthError;
     } catch (e) {
-      setError(e?.message || 'Connexion sociale impossible. Vérifiez la configuration du fournisseur dans Supabase.');
+      const raw = e?.message || 'Connexion sociale impossible. Vérifiez la configuration du fournisseur dans Supabase.';
+      const lower = raw.toLowerCase();
+      setError(lower.includes('provider is not enabled') || lower.includes('unsupported provider')
+        ? 'Ce fournisseur OAuth n’est pas encore activé dans Supabase Auth. Un superadmin peut le configurer dans Administration → Réglages de la plateforme, après ajout des variables de gestion Supabase sur Vercel et configuration du Client ID/Secret dans Google Cloud ou Meta.'
+        : raw);
       setBusy(false);
     }
   };
