@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { UserRound, Building2, Wrench, KeyRound, CarFront, Plus, RefreshCw, Clock3, CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
+import { brandsForCategory, modelsFor } from './vehicleCatalog.js';
 
 const types = {
   individual: {label:'Particulier', icon:UserRound, desc:'Gérez vos favoris et publiez vos annonces automobiles.'},
