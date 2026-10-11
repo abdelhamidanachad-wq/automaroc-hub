@@ -33,6 +33,16 @@ export default async function handler(req, res) {
         adsenseClientId: String(settings.adsenseClientId || "").trim().slice(0,160),
       };
       if (value.supportEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.supportEmail)) return send(res,400,{error:"Support email is invalid."});
+      if (!value.allowSignups && (!process.env.SUPABASE_ACCESS_TOKEN || !process.env.SUPABASE_PROJECT_REF)) {
+        return send(res,503,{error:"To disable new account creation safely, configure SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF in Vercel. No settings were changed."});
+      }
+      if (process.env.SUPABASE_ACCESS_TOKEN && process.env.SUPABASE_PROJECT_REF) {
+        const response=await fetch("https://api.supabase.com/v1/projects/"+encodeURIComponent(process.env.SUPABASE_PROJECT_REF)+"/config/auth",{
+          method:"PATCH",headers:{Authorization:"Bearer "+process.env.SUPABASE_ACCESS_TOKEN,"Content-Type":"application/json"},
+          body:JSON.stringify({disable_signup:!value.allowSignups})
+        });
+        if(!response.ok){console.error("Supabase signup setting update failed:",response.status,(await response.text().catch(()=>"")).slice(0,400));return send(res,502,{error:"Supabase Auth rejected the signup setting. Verify the Management API token and project reference."});}
+      }
       const {error}=await db.from("platform_settings").upsert({setting_key:"platform",setting_value:value,updated_by:auth.user.id,updated_at:new Date().toISOString()},{onConflict:"setting_key"});
       if(error)return send(res,500,{error:"Could not save platform settings."});
       return send(res,200,{ok:true,settings:value});
