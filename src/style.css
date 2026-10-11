@@ -15,3 +15,6 @@
 .maintenance-screen h1{margin:8px 0;font-size:clamp(1.8rem,5vw,3rem)}
 .maintenance-screen p{max-width:540px;line-height:1.6;color:#607067}
 @media(max-width:640px){.adbanner-managed{align-items:flex-start}.adbanner-managed .adlink{white-space:normal}.adbanner-google{padding:12px}}
+
+
+.language-switcher{display:flex;align-items:center;gap:4px;border:1px solid #dce6df;border-radius:10px;padding:3px 7px;background:#fff;color:#254432}.language-switcher select{border:0;outline:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:800;padding:5px 1px;cursor:pointer;min-width:38px}.app-shell[dir="rtl"]{direction:rtl}.app-shell[dir="rtl"] .vehicle-info,.app-shell[dir="rtl"] .hero-copy,.app-shell[dir="rtl"] .admin-overview-grid button{text-align:right}.app-shell[dir="rtl"] .top-actions{direction:rtl}@media(max-width:760px){.language-switcher{padding:2px 5px}.language-switcher select{min-width:34px}}
