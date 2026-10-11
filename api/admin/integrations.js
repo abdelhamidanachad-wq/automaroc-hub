@@ -1,4 +1,4 @@
-import { encryptSecret, getAdminSupabase, requireSuperadmin, logIntegrationUsage, readIntegrationSecret } from "../_lib/integration-vault.js";
+import { encryptSecret, getAdminSupabase, requireSuperadmin, logIntegrationUsage, readIntegrationSecret } from "../../server/integration-vault.js";
 
 const PROVIDERS = {
   google_maps: { label: "Google Maps Platform", description: "Geocoding, Places, Routes and map services", test: testGoogleMaps },
