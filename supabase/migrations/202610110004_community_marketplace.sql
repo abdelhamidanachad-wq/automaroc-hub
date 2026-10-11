@@ -133,7 +133,7 @@ for all to authenticated using ((select public.has_role('superadmin'))) with che
 
 drop policy if exists "Public can read published service providers" on public.service_providers;
 create policy "Public can read published service providers" on public.service_providers
-for select to anon, authenticated using (status = 'published');
+for select to anon, authenticated using (status = 'published' and (verified = true or source_authorized = true));
 drop policy if exists "Owners can submit service providers" on public.service_providers;
 create policy "Owners can submit service providers" on public.service_providers
 for insert to authenticated with check (owner_id = (select auth.uid()) and status = 'pending' and verified = false and source_authorized = false);
