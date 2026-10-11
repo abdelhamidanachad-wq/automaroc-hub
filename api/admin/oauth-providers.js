@@ -44,12 +44,16 @@ export default async function handler(req, res) {
       if (clientSecret) credentials.clientSecret = clientSecret;
     }
     if (enabled && (!credentials?.clientId || !credentials?.clientSecret)) return send(res, 400, { error: "Enter both the OAuth Client ID and Client Secret before enabling this provider." });
-    if (enabled && (!process.env.SUPABASE_ACCESS_TOKEN || !process.env.SUPABASE_PROJECT_REF)) {
+    if (!process.env.SUPABASE_ACCESS_TOKEN || !process.env.SUPABASE_PROJECT_REF) {
       return send(res, 503, { error: "To apply OAuth settings from this panel, configure SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF as server-only Vercel environment variables. No credentials were changed." });
     }
 
-    if (process.env.SUPABASE_ACCESS_TOKEN && process.env.SUPABASE_PROJECT_REF && credentials) {
-      const patch = { [config.enabled]: enabled, [config.clientId]: credentials.clientId || "", [config.secret]: credentials.clientSecret || "" };
+    if (process.env.SUPABASE_ACCESS_TOKEN && process.env.SUPABASE_PROJECT_REF) {
+      const patch = { [config.enabled]: enabled };
+      if (credentials?.clientId && credentials?.clientSecret) {
+        patch[config.clientId] = credentials.clientId;
+        patch[config.secret] = credentials.clientSecret;
+      }
       const response = await fetch("https://api.supabase.com/v1/projects/" + encodeURIComponent(process.env.SUPABASE_PROJECT_REF) + "/config/auth", {
         method: "PATCH",
         headers: { Authorization: "Bearer " + process.env.SUPABASE_ACCESS_TOKEN, "Content-Type": "application/json" },
@@ -60,8 +64,6 @@ export default async function handler(req, res) {
         console.error("Supabase Auth config update failed:", response.status, detail.slice(0, 500));
         return send(res, 502, { error: "Supabase rejected the OAuth configuration (HTTP " + response.status + "). Verify the Management API token permissions and project reference." });
       }
-    } else if (enabled) {
-      return send(res, 503, { error: "Supabase Management API is not configured." });
     }
 
     const encrypted = credentials ? encryptSecret(JSON.stringify(credentials)) : old?.encrypted_secret;
