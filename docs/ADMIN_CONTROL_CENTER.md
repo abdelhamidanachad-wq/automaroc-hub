@@ -52,3 +52,18 @@ Imports are bounded and go to moderation as pending listings. The importer does 
 - AdSense must be approved by Google; an AdSense client/slot ID does not guarantee ads will serve.
 - Provider budgets shown in MOROTTO are governance metadata, not guaranteed external billing caps.
 - Real inventory, rental offers, insurance offers, garages, and parts require authorized, accurate records; this code does not fabricate those records.
+
+
+## Morocco vehicle model scrape priorities
+
+The admin scraper now has a first-wave selector backed by `src/moroccoPriceGuide.js`. It includes priority models and indicative year, fuel, and MAD price ranges transcribed from the owner-supplied market reference. These figures are a planning baseline only, not live listings, verified valuations, or proof that stock exists.
+
+1. In **Administration → Import d’annonces autorisées**, choose the next priority model.
+2. Copy its suggested search phrase, open Avito in a separate tab, and run that search.
+3. Paste the exact resulting HTTPS Avito URL into the form. The selected model is a workflow aid only; it does not alter Avito filters or the actor's input.
+4. Confirm collection/reuse permission only when documented authorization covers the source and media, then start the run.
+5. Review imported rows under **Modération des annonces**. Imports remain pending and must be reviewed before publication.
+
+Start with common high-volume models (Dacia Logan/Sandero/Duster, Renault Clio/Megane, Peugeot 208/3008, Volkswagen Golf/Polo, then Toyota, Hyundai/Kia, and premium models). This selector is a first-wave priority subset; the app's existing `vehicleCatalog.js` remains the broader make/model autocomplete source.
+
+**Important:** a model price range is not a vehicle listing and must never be inserted as inventory. The admin scraper only fills the marketplace when the configured actor returns real records with a valid model, year, price, city, source reference, and permitted source URL. No inventory totals are promised until real rows are imported and approved.
