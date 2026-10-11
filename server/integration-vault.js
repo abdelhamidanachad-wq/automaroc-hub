@@ -55,3 +55,24 @@ export async function logIntegrationUsage(supabase, provider, feature, units = 1
   });
   if (error) console.error("Integration usage logging failed:", error.message);
 }
+
+export async function assertIntegrationCallAllowed(supabase, provider) {
+  const { data: config, error } = await supabase.from("integration_secrets")
+    .select("enabled,daily_limit").eq("provider", provider).maybeSingle();
+  if (error) return { allowed: false, reason: "Could not read integration limits." };
+  if (!config) return { allowed: true, managed: false };
+  if (!config.enabled) return { allowed: false, reason: "This integration is disabled by the superadmin." };
+  if (Number(config.daily_limit || 0) > 0) {
+    const start = new Date();
+    start.setUTCHours(0, 0, 0, 0);
+    const { count, error: countError } = await supabase.from("integration_usage")
+      .select("id", { count: "exact", head: true })
+      .eq("provider", provider).gte("created_at", start.toISOString());
+    if (countError) return { allowed: false, reason: "Could not verify the daily usage limit." };
+    if ((count || 0) >= Number(config.daily_limit)) {
+      await logIntegrationUsage(supabase, provider, "daily_limit_block", 1, "blocked");
+      return { allowed: false, reason: "The configured daily API-call limit has been reached." };
+    }
+  }
+  return { allowed: true, managed: true };
+}
