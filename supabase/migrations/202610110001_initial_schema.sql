@@ -19,7 +19,7 @@ create table if not exists public.listings (
   category text not null default 'Cars' check (category in ('Cars','Motos','Scooters','Trucks')),
   brand text not null check (char_length(brand) between 1 and 60),
   model text not null check (char_length(model) between 1 and 100),
-  year integer not null check (year between 1950 and extract(year from now())::integer + 1),
+  year integer not null check (year between 1950 and 2100),
   price_mad numeric(12,2) not null check (price_mad > 0),
   fuel text not null default 'Autre',
   fiscal_power integer check (fiscal_power is null or fiscal_power between 1 and 100),
@@ -60,7 +60,7 @@ alter table public.listings enable row level security;
 
 drop policy if exists "Profiles are viewable by authenticated users" on public.profiles;
 create policy "Profiles are viewable by authenticated users" on public.profiles
-for select to authenticated using (true);
+for select to authenticated using (id = (select auth.uid()));
 drop policy if exists "Users create their own profile" on public.profiles;
 create policy "Users create their own profile" on public.profiles
 for insert to authenticated with check (id = (select auth.uid()));
