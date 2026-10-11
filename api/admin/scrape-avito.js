@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { decryptSecret, logIntegrationUsage } from "../../server/integration-vault.js";
+import { decryptSecret, logIntegrationUsage, assertIntegrationCallAllowed } from "../../server/integration-vault.js";
 
 const ACTOR_ID = "delectable_incubator~avito-ma-scraper---low-cost";
 const SOURCE = "authorized_import";
@@ -147,6 +147,8 @@ export default async function handler(req, res) {
       apifyToken = decryptSecret(apifyConfig.encrypted_secret);
     }
     if (!apifyToken) return json(res, 500, { error: "Configure and enable Apify in the superadmin integrations page." });
+    const limit = await assertIntegrationCallAllowed(supabase, "apify");
+    if (!limit.allowed) return json(res, 429, { error: limit.reason });
 
     const { action } = req.body || {};
 
@@ -198,6 +200,7 @@ export default async function handler(req, res) {
       }
 
       const run = await apifyRequest(`/actor-runs/${encodeURIComponent(runId)}`, apifyToken);
+      await logIntegrationUsage(supabase, "apify", "avito_run_status_check", 1, "success");
       if (["FAILED", "ABORTED", "TIMED-OUT"].includes(run.status)) {
         await supabase.from("scrape_runs").update({
           status: run.status.toLowerCase(),
