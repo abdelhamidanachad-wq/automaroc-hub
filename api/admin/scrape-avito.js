@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { decryptSecret, logIntegrationUsage, assertIntegrationCallAllowed } from "../../server/integration-vault.js";
 
-const ACTOR_ID = "delectable_incubator~avito-ma-scraper---low-cost";
+const ACTOR_ID = process.env.APIFY_AVITO_ACTOR_ID || "delectable_incubator~avito-ma-scraper---low-cost";
 const SOURCE = "authorized_import";
-const MAX_ITEMS = 1000;
+const MAX_ITEMS = Math.min(1000, Math.max(1, Math.trunc(Number(process.env.APIFY_MAX_ITEMS) || 1000)));
 const ALLOWED_HOSTS = new Set(["avito.ma", "www.avito.ma"]);
 
 const requiredEnv = [
