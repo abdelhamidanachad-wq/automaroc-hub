@@ -32,6 +32,21 @@ export default function AuthModal({ onClose, onAuthenticated }) {
     finally { setBusy(false); }
   };
 
+  const signInSocial = async (provider) => {
+    setBusy(true); setError(''); setMessage('');
+    try {
+      if (!supabase) throw new Error('La connexion Supabase n’est pas configurée.');
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: window.location.origin }
+      });
+      if (oauthError) throw oauthError;
+    } catch (e) {
+      setError(e?.message || 'Connexion sociale impossible. Vérifiez la configuration du fournisseur dans Supabase.');
+      setBusy(false);
+    }
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true); setError(''); setMessage('');
@@ -78,6 +93,11 @@ export default function AuthModal({ onClose, onAuthenticated }) {
       <h2 id="auth-title">{mode === 'signup' ? 'Créez votre compte.' : 'Connectez-vous.'}</h2>
       <p className="auth-subtitle">{mode === 'signup' ? 'Un compte pour vos annonces, favoris et services auto.' : 'Retrouvez votre espace MOROTTO en toute sécurité.'}</p>
       <div className="auth-mode-switch"><button className={mode === 'signup' ? 'active' : ''} onClick={() => {setMode('signup');setError('');setMessage('')}}>Créer un compte</button><button className={mode === 'login' ? 'active' : ''} onClick={() => {setMode('login');setError('');setMessage('')}}>Se connecter</button></div>
+      <div className="auth-social-buttons">
+        <button type="button" onClick={() => signInSocial('google')} disabled={busy}><span className="auth-social-g">G</span> Continuer avec Google</button>
+        <button type="button" onClick={() => signInSocial('facebook')} disabled={busy}><span className="auth-social-f">f</span> Continuer avec Facebook</button>
+      </div>
+      <div className="auth-divider"><span>ou par e-mail</span></div>
       <form onSubmit={submit} className="auth-form">
         {mode === 'signup' && <>
           <label>Nom affiché<input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" placeholder="Votre nom" maxLength={80} required/></label>
