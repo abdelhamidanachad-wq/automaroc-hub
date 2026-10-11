@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './admin-scraper.css';
 import AdminScraper from './AdminScraper.jsx';
+import AdminIntegrations from './AdminIntegrations.jsx';
+import './admin-integrations.css';
 import { ShieldCheck, Users, CarFront, RefreshCw, CheckCircle2, XCircle, Clock3 } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 
@@ -36,6 +38,7 @@ export default function AdminDashboard({ user, notify }) {
 
   return <section className="admin-page">
     <div className="admin-welcome"><div><span className="auth-eyebrow">CONSOLE PRIVÉE · MOROTTO</span><h1><ShieldCheck size={29}/> Administration</h1><p>Connecté en tant que {user?.email}. Les actions sont protégées par les rôles Supabase.</p></div><button className="admin-refresh" onClick={refresh} disabled={loading}><RefreshCw size={16}/> Actualiser</button></div>
+    <AdminIntegrations />
     <AdminScraper notify={notify} />
     <div className="admin-stats"><div><span><Users size={20}/></span><small>Comptes</small><b>{counts.users}</b></div><div><span><Clock3 size={20}/></span><small>À modérer</small><b>{counts.pending}</b></div><div><span><CarFront size={20}/></span><small>Annonces publiées</small><b>{counts.published}</b></div></div>
     <div className="admin-list-head"><div><h2>Modération des annonces</h2><p>Examinez les annonces avant de les publier.</p></div><span className="admin-live"><i/> Contrôle d’accès actif</span></div>
