@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { decryptSecret, logIntegrationUsage, assertIntegrationCallAllowed } from "../../server/integration-vault.js";
 
 const ACTOR_ID = "delectable_incubator~avito-ma-scraper---low-cost";
 const SOURCE = "authorized_import";
@@ -8,7 +9,6 @@ const ALLOWED_HOSTS = new Set(["avito.ma", "www.avito.ma"]);
 const requiredEnv = [
   "SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "APIFY_API_TOKEN",
 ];
 
 function json(res, status, body) {
@@ -138,6 +138,18 @@ export default async function handler(req, res) {
 
     if (roleError || !role) return json(res, 403, { error: "Superadmin access required." });
 
+    const { data: apifyConfig, error: apifyConfigError } = await supabase
+      .from("integration_secrets").select("encrypted_secret,enabled").eq("provider", "apify").maybeSingle();
+    if (apifyConfigError) return json(res, 500, { error: "Could not read Apify integration settings." });
+    let apifyToken = process.env.APIFY_API_TOKEN || "";
+    if (apifyConfig) {
+      if (!apifyConfig.enabled) return json(res, 403, { error: "Apify is disabled in the superadmin integrations settings." });
+      apifyToken = decryptSecret(apifyConfig.encrypted_secret);
+    }
+    if (!apifyToken) return json(res, 500, { error: "Configure and enable Apify in the superadmin integrations page." });
+    const limit = await assertIntegrationCallAllowed(supabase, "apify");
+    if (!limit.allowed) return json(res, 429, { error: limit.reason });
+
     const { action } = req.body || {};
 
     if (action === "start") {
@@ -149,7 +161,7 @@ export default async function handler(req, res) {
 
       // Verify the actor's Input schema in Apify Store. This actor input currently
       // assumes the common startUrls shape; adapt it if the actor documents another schema.
-      const run = await apifyRequest(`/acts/${encodeURIComponent(ACTOR_ID)}/runs`, process.env.APIFY_API_TOKEN, {
+      const run = await apifyRequest(`/acts/${encodeURIComponent(ACTOR_ID)}/runs`, apifyToken, {
         method: "POST",
         body: JSON.stringify({ startUrls: [{ url: targetUrl }] }),
       });
@@ -165,6 +177,7 @@ export default async function handler(req, res) {
         console.error("Could not save scrape run:", insertError.message);
         return json(res, 500, { error: "The run started but tracking could not be saved. Check server logs." });
       }
+      await logIntegrationUsage(supabase, "apify", "avito_scrape_run", 1, "success");
       return json(res, 202, { runId: run.id, status: "running" });
     }
 
@@ -186,7 +199,8 @@ export default async function handler(req, res) {
         return json(res, 200, { status: "completed", importedCount: record.imported_count });
       }
 
-      const run = await apifyRequest(`/actor-runs/${encodeURIComponent(runId)}`, process.env.APIFY_API_TOKEN);
+      const run = await apifyRequest(`/actor-runs/${encodeURIComponent(runId)}`, apifyToken);
+      await logIntegrationUsage(supabase, "apify", "avito_run_status_check", 1, "success");
       if (["FAILED", "ABORTED", "TIMED-OUT"].includes(run.status)) {
         await supabase.from("scrape_runs").update({
           status: run.status.toLowerCase(),
