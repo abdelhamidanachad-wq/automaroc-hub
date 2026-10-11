@@ -1,4 +1,4 @@
-import { encryptSecret, getAdminSupabase, requireSuperadmin, logIntegrationUsage, readIntegrationSecret } from "../../server/integration-vault.js";
+import { encryptSecret, getAdminSupabase, requireSuperadmin, logIntegrationUsage, readIntegrationSecret, assertIntegrationCallAllowed } from "../../server/integration-vault.js";
 
 const PROVIDERS = {
   google_maps: { label: "Google Maps Platform", description: "Geocoding, Places, Routes and map services", test: testGoogleMaps },
@@ -75,6 +75,8 @@ export default async function handler(req, res) {
     }
 
     if (body.action === "test") {
+      const limit = await assertIntegrationCallAllowed(supabase, provider);
+      if (!limit.allowed) return send(res, 429, { error: limit.reason });
       const key = await readIntegrationSecret(supabase, provider);
       if (!key) return send(res, 400, { error: "Save and enable a key before testing it." });
       const result = await PROVIDERS[provider].test(key);
