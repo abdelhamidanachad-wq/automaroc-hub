@@ -28,7 +28,7 @@ function isValidAvitoUrl(value) {
 
 function normalizeNumber(value) {
   if (value === undefined || value === null || value === "") return null;
-  const digits = String(value).replace(/[^\d.,-]/g, "").replace(",", ".");
+  const digits = String(value).replace(/[^\d-]/g, "");
   const result = Number(digits);
   return Number.isFinite(result) ? result : null;
 }
@@ -211,7 +211,7 @@ export default async function handler(req, res) {
       if (run.status !== "SUCCEEDED") return json(res, 200, { status: "running" });
 
       const ownerId = process.env.AUTHORIZED_IMPORT_OWNER_ID;
-      if (!ownerId) return json(res, 500, { error: "Set AUTHORIZED_IMPORT_OWNER_ID to the UUID of the authorized inventory owner in Vercel." });
+      if (!ownerId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ownerId)) return json(res, 500, { error: "Set AUTHORIZED_IMPORT_OWNER_ID to a valid user UUID in Vercel." });
 
       const datasetId = run.defaultDatasetId;
       if (!datasetId) throw new Error("Apify run has no dataset.");
