@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { decryptSecret, logIntegrationUsage, assertIntegrationCallAllowed } from "../../server/integration-vault.js";
 
-const ACTOR_ID = "delectable_incubator~avito-ma-scraper---low-cost";
+const ACTOR_ID = process.env.APIFY_AVITO_ACTOR_ID || "delectable_incubator~avito-ma-scraper---low-cost";
 const SOURCE = "authorized_import";
-const MAX_ITEMS = 1000;
+const MAX_ITEMS = Math.min(1000, Math.max(1, Math.trunc(Number(process.env.APIFY_MAX_ITEMS) || 1000)));
 const ALLOWED_HOSTS = new Set(["avito.ma", "www.avito.ma"]);
 
 const requiredEnv = [
@@ -28,7 +28,7 @@ function isValidAvitoUrl(value) {
 
 function normalizeNumber(value) {
   if (value === undefined || value === null || value === "") return null;
-  const digits = String(value).replace(/[^\d.,-]/g, "").replace(",", ".");
+  const digits = String(value).replace(/[^\d-]/g, "");
   const result = Number(digits);
   return Number.isFinite(result) ? result : null;
 }
@@ -211,14 +211,14 @@ export default async function handler(req, res) {
       if (run.status !== "SUCCEEDED") return json(res, 200, { status: "running" });
 
       const ownerId = process.env.AUTHORIZED_IMPORT_OWNER_ID;
-      if (!ownerId) return json(res, 500, { error: "Set AUTHORIZED_IMPORT_OWNER_ID to the UUID of the authorized inventory owner in Vercel." });
+      if (!ownerId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(ownerId)) return json(res, 500, { error: "Set AUTHORIZED_IMPORT_OWNER_ID to a valid user UUID in Vercel." });
 
       const datasetId = run.defaultDatasetId;
       if (!datasetId) throw new Error("Apify run has no dataset.");
 
       const items = await apifyRequest(
         `/datasets/${encodeURIComponent(datasetId)}/items?format=json&clean=true&limit=${MAX_ITEMS}`,
-        process.env.APIFY_API_TOKEN
+        apifyToken
       );
       if (!Array.isArray(items)) throw new Error("The actor returned an unexpected dataset format.");
 

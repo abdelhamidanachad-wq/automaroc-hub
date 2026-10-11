@@ -9,8 +9,8 @@ const accountTypes = [
   { value: 'rental_agency', label: 'Agence de location', icon: KeyRound },
 ];
 
-export default function AuthModal({ onClose, onAuthenticated }) {
-  const [mode, setMode] = useState('signup');
+export default function AuthModal({ onClose, onAuthenticated, allowSignups = true }) {
+  const [mode, setMode] = useState(allowSignups ? 'signup' : 'login');
   const [name, setName] = useState('');
   const [accountType, setAccountType] = useState('individual');
   const [email, setEmail] = useState('');
@@ -18,6 +18,8 @@ export default function AuthModal({ onClose, onAuthenticated }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+
+  React.useEffect(() => { if (!allowSignups) setMode('login'); }, [allowSignups]);
 
   const resetPassword = async () => {
     setError(''); setMessage('');
@@ -42,7 +44,11 @@ export default function AuthModal({ onClose, onAuthenticated }) {
       });
       if (oauthError) throw oauthError;
     } catch (e) {
-      setError(e?.message || 'Connexion sociale impossible. Vérifiez la configuration du fournisseur dans Supabase.');
+      const raw = e?.message || 'Connexion sociale impossible. Vérifiez la configuration du fournisseur dans Supabase.';
+      const lower = raw.toLowerCase();
+      setError(lower.includes('provider is not enabled') || lower.includes('unsupported provider')
+        ? 'Ce fournisseur OAuth n’est pas encore activé dans Supabase Auth. Un superadmin peut le configurer dans Administration → Réglages de la plateforme, après ajout des variables de gestion Supabase sur Vercel et configuration du Client ID/Secret dans Google Cloud ou Meta.'
+        : raw);
       setBusy(false);
     }
   };
@@ -92,7 +98,7 @@ export default function AuthModal({ onClose, onAuthenticated }) {
       <span className="auth-eyebrow">{mode === 'signup' ? 'REJOIGNEZ LA COMMUNAUTÉ' : 'HEUREUX DE VOUS REVOIR'}</span>
       <h2 id="auth-title">{mode === 'signup' ? 'Créez votre compte.' : 'Connectez-vous.'}</h2>
       <p className="auth-subtitle">{mode === 'signup' ? 'Un compte pour vos annonces, favoris et services auto.' : 'Retrouvez votre espace MOROTTO en toute sécurité.'}</p>
-      <div className="auth-mode-switch"><button className={mode === 'signup' ? 'active' : ''} onClick={() => {setMode('signup');setError('');setMessage('')}}>Créer un compte</button><button className={mode === 'login' ? 'active' : ''} onClick={() => {setMode('login');setError('');setMessage('')}}>Se connecter</button></div>
+      <div className="auth-mode-switch">{allowSignups && <button className={mode === 'signup' ? 'active' : ''} onClick={() => {setMode('signup');setError('');setMessage('')}}>Créer un compte</button>}<button className={mode === 'login' ? 'active' : ''} onClick={() => {setMode('login');setError('');setMessage('')}}>Se connecter</button></div>
       <div className="auth-social-buttons">
         <button type="button" onClick={() => signInSocial('google')} disabled={busy}><span className="auth-social-g">G</span> Continuer avec Google</button>
         <button type="button" onClick={() => signInSocial('facebook')} disabled={busy}><span className="auth-social-f">f</span> Continuer avec Facebook</button>
