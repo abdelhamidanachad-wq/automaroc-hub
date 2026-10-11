@@ -29,6 +29,8 @@ export default function AccountDashboard({user, notify}) {
   };
   useEffect(()=>{load()},[user?.id]);
   const update=(key,value)=>setForm(old=>({...old,[key]:value}));
+  const brandOptions=brandsForCategory(form.category);
+  const modelOptions=modelsFor(form.category,form.brand);
   const submit=async e=>{
     e.preventDefault();setSaving(true);setError('');
     const payload={owner_id:user.id,brand:form.brand.trim(),model:form.model.trim(),year:Number(form.year),price_mad:Number(form.price),city:form.city.trim(),category:form.category,fuel:form.fuel,mileage_km:Number(form.mileage||0),listing_type:'Occasion',status:'pending',source:accountType==='dealer'?'dealer':'seller'};
