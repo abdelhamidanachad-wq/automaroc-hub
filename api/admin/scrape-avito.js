@@ -218,7 +218,7 @@ export default async function handler(req, res) {
 
       const items = await apifyRequest(
         `/datasets/${encodeURIComponent(datasetId)}/items?format=json&clean=true&limit=${MAX_ITEMS}`,
-        process.env.APIFY_API_TOKEN
+        apifyToken
       );
       if (!Array.isArray(items)) throw new Error("The actor returned an unexpected dataset format.");
 
