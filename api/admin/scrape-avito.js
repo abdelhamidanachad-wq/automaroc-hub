@@ -75,7 +75,7 @@ function mapListing(item, ownerId) {
     year: Math.trunc(year),
     price_mad: price,
     fuel: String(firstValue(item, ["fuel", "fuelType", "carburant"]) || "Autre").slice(0, 60),
-    mileage_km: Math.max(0, Math.trunc(normalizeNumber(firstValue(item, ["mileage", "mileageKm", "kilometers", "kilometrage"])) || 0),
+    mileage_km: Math.max(0, Math.trunc(normalizeNumber(firstValue(item, ["mileage", "mileageKm", "kilometers", "kilometrage"])) || 0)),
     listing_type: listingType,
     city: String(city).trim().slice(0, 120),
     image_url: image && /^https?:\/\//i.test(String(image)) ? String(image).slice(0, 2048) : null,
