@@ -1,7 +1,9 @@
 # MOROTTO maps provider evaluation (Morocco)
 
 ## Recommendation
-Run a proof-of-coverage test in Casablanca, Rabat, Marrakech, Tangier, and rural routes before committing. The current SVG map is a mock, not navigation.
+For the first Morocco pilot, **start the proof of concept with Google Maps Platform**, then compare Mapbox in the same locations before locking the provider. Google's published Navigation SDK coverage table lists Morocco as available for traffic layer, driving directions/snap-to-roads, walking directions, and real-time disruptions; it does not list two-wheeled directions, cycling, speed limits, or traffic signals/stop signs as available in that table. Validate each feature in real test drives before launch. Mapbox has strong mobile navigation, live traffic, route customization, and offline capabilities, but its regional quality should be field-tested rather than assumed. The current SVG map is a mock, not navigation.
+
+Coverage source: https://developers.google.com/maps/documentation/navigation/android-sdk/coverage-nav-sdk. Mapbox navigation capabilities: https://docs.mapbox.com/android/navigation/guides/.
 
 | Requirement | Mapbox | Google Maps Platform |
 |---|---|---|
