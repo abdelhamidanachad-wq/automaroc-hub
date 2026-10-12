@@ -60,8 +60,10 @@ function generationForYear(kind, model, year, generationNumbers) {
   const y = Number(year);
   const m = normal(model);
   if (kind === 'duster') {
-    if (/gen\s*1|generation\s*1/.test(m) || (y >= 2010 && y <= 2017)) return 1;
-    if (/gen\s*2|generation\s*2/.test(m) || (y >= 2018 && y <= 2024)) return 2;
+    if (/gen\s*1|generation\s*1/.test(m)) return 1;
+    if (/gen\s*2|generation\s*2/.test(m)) return 2;
+    if (y >= 2010 && y <= 2017) return 1;
+    if (y >= 2018 && y <= 2024) return 2;
   }
   if (kind === 'golf') {
     const explicit = m.match(/\bgolf\s*([1-8])\b/);
@@ -85,33 +87,43 @@ function targetedQueries({kind, brand, model, year, clean, generationNumbers}) {
   const yearLabel = yValid ? String(y) : '';
   const generation = generationForYear(kind, model, y, generationNumbers);
   if (kind === 'duster') {
-    const generationLabel = generation === 1 ? 'first generation Duster I' : generation === 2 ? 'second generation Duster II' : 'Dacia Duster SUV';
-    return [
-      [brand, 'Duster', generationLabel, yearLabel, 'standard road SUV'].filter(Boolean).join(' '),
-      [brand, 'Duster', generation === 1 ? 'Laureate 4x2 SUV' : generation === 2 ? 'Comfort 4x2 SUV' : 'production SUV', yearLabel].filter(Boolean).join(' ')
+    if (generation === 1) return [
+      ['Dacia Duster Laureate', yearLabel].filter(Boolean).join(' '),
+      ['Dacia Duster', yearLabel, '4x2'].filter(Boolean).join(' '),
+      'Dacia Duster first generation'
     ];
+    if (generation === 2) return [
+      ['Dacia Duster II', yearLabel].filter(Boolean).join(' '),
+      ['Dacia Duster', yearLabel, 'Comfort'].filter(Boolean).join(' '),
+      'Dacia Duster second generation'
+    ];
+    return [['Dacia Duster', yearLabel].filter(Boolean).join(' '), 'Dacia Duster Laureate'];
   }
   if (kind === 'golf') {
     const generationLabel = generation ? 'Volkswagen Golf Mk' + generation : 'Volkswagen Golf';
+    const golfCode = ({1:'Golf I',2:'Golf II',3:'1H',4:'1J',5:'1K',6:'5K',7:'5G',8:'Golf VIII'})[generation] || '';
     return [
-      [generationLabel, yearLabel, '5 door hatchback Comfortline Trendline standard road car'].filter(Boolean).join(' '),
-      ['Volkswagen Golf', yearLabel, generationLabel, 'ordinary hatchback standard trim'].filter(Boolean).join(' ')
+      [generationLabel, yearLabel].filter(Boolean).join(' '),
+      ['Volkswagen Golf', golfCode, yearLabel].filter(Boolean).join(' '),
+      ['Volkswagen Golf', yearLabel, 'Comfortline hatchback'].filter(Boolean).join(' ')
     ];
   }
   if (kind === 'fiesta') {
     return [
-      ['Ford Fiesta', yearLabel, '5 door hatchback standard road car'].filter(Boolean).join(' '),
-      ['Ford Fiesta', yearLabel, 'CL Zetec Trend hatchback production vehicle'].filter(Boolean).join(' ')
+      ['Ford Fiesta', yearLabel, 'hatchback'].filter(Boolean).join(' '),
+      ['Ford Fiesta', yearLabel, 'CL hatchback'].filter(Boolean).join(' '),
+      ['Ford Fiesta', yearLabel, 'Trend Zetec hatchback'].filter(Boolean).join(' ')
     ];
   }
   if (kind === 'polo') {
     return [
-      ['Volkswagen Polo', yearLabel, '5 door hatchback standard road car'].filter(Boolean).join(' '),
-      ['Volkswagen Polo', yearLabel, 'Comfortline Trendline hatchback production vehicle'].filter(Boolean).join(' ')
+      ['Volkswagen Polo', yearLabel, 'hatchback'].filter(Boolean).join(' '),
+      ['Volkswagen Polo', yearLabel, 'Comfortline hatchback'].filter(Boolean).join(' '),
+      ['Volkswagen Polo', yearLabel, 'Trendline hatchback'].filter(Boolean).join(' ')
     ];
   }
   return [
-    [brand, clean, yearLabel, 'production road car'].filter(Boolean).join(' '),
+    [brand, clean, yearLabel].filter(Boolean).join(' '),
     [brand, clean, 'automobile'].filter(Boolean).join(' ')
   ];
 }
@@ -145,12 +157,12 @@ function scoreCandidate(page, {brand, year, modelTokens, codeTokens, aliases, ki
   }
 
   const nonVehicle = /\b(logo|badge|emblem|steering wheel|engine|gearbox|interior|dashboard|headlight|taillight|wheel rim|rim only|toy car|model kit|scale model|drawing|diagram|blueprint|brochure|poster|screenshot|video game|hot wheels|matchbox|motor show stand|car dealer logo)\b/;
-  const racingContext = /\b(race|racing|racecar|race car|rally|rallying|rallycross|motorsport|motor sport|track day|track car|circuit|drift|hillclimb|hill climb|time attack|wrc|racing livery|race livery|sponsored race|competition car|racing car|rally car|cup car|trophy car|pace car)\b/;
+  const racingContext = /\b(race|racing|racecar|race car|rally|rallying|rallycross|motorsport|motor sport|track day|track car|circuit|drift|hillclimb|hill climb|time attack|wrc|racing livery|race livery|sponsored race|competition car|racing car|rally car|cup car|trophy car|pace car|racing championship|race weekend)\b/;
   if (nonVehicle.test(title)) score -= 18;
   if (racingContext.test(full)) score -= 100;
-  if (kind === 'golf' && /\b(gti|gtd|gte|r32|golf r|clubsport|tcr)\b/.test(full)) score -= 18;
-  if (kind === 'fiesta' && /\b(fiesta st|st\s*\d{2,3}|fiesta rs|fiesta wrc)\b/.test(full)) score -= 18;
-  if (kind === 'polo' && /\b(polo gti|polo r wrc|polo r5|polo cup)\b/.test(full)) score -= 18;
+  if (kind === 'golf' && /\b(gti|gtd|gte|r32|golf r|clubsport|tcr|cup edition)\b/.test(full)) score -= 30;
+  if (kind === 'fiesta' && /\b(fiesta st|st\s*\d{2,3}|fiesta rs|fiesta wrc)\b/.test(full)) score -= 30;
+  if (kind === 'polo' && /\b(polo gti|polo r wrc|polo r5|polo cup)\b/.test(full)) score -= 30;
 
   if (kind === 'duster') {
     const generation = generationForYear(kind, '', y, []);
@@ -250,8 +262,8 @@ export default async function handler(req, res) {
         if (!info?.thumburl || !/^https?:\/\//i.test(info.thumburl)) return false;
         if (/\.(svg|gif)$/i.test(page.title)) return false;
         if (/\b(logo|badge|emblem|steering wheel|engine|gearbox|interior|dashboard|headlight|taillight|toy car|model kit|scale model|drawing|diagram|blueprint|brochure|poster|screenshot|hot wheels|matchbox)\b/.test(title)) return false;
-        if (/\b(race|racing|racecar|race car|rally|rallying|rallycross|motorsport|motor sport|track day|track car|circuit|drift|hillclimb|hill climb|time attack|wrc|racing livery|race livery|sponsored race|competition car|racing car|rally car|cup car|trophy car|pace car)\b/.test(fullText)) return false;
-        if (kind === 'golf' && /\b(gti|gtd|gte|r32|golf r|clubsport|tcr)\b/.test(fullText)) return false;
+        if (/\b(race|racing|racecar|race car|rally|rallying|rallycross|motorsport|motor sport|track day|track car|circuit|drift|hillclimb|hill climb|time attack|wrc|racing livery|race livery|sponsored race|competition car|racing car|rally car|cup car|trophy car|pace car|racing championship|race weekend)\b/.test(fullText)) return false;
+        if (kind === 'golf' && /\b(gti|gtd|gte|r32|golf r|clubsport|tcr|cup edition)\b/.test(fullText)) return false;
         if (kind === 'fiesta' && /\b(fiesta st|st\s*\d{2,3}|fiesta rs|fiesta wrc)\b/.test(fullText)) return false;
         if (kind === 'polo' && /\b(polo gti|polo r wrc|polo r5|polo cup)\b/.test(fullText)) return false;
         if (kind === 'duster') {
