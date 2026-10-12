@@ -31,9 +31,9 @@ BRANDS = [
     "Mitsubishi", "Volvo", "Land Rover", "Jeep", "Porsche",
 ]
 FUEL_MAP = {
+    "hybride": "Hybride", "hybrid": "Hybride",
+    "électrique": "Électrique", "electrique": "Électrique", "electric": "Électrique",
     "diesel": "Diesel", "gasoil": "Diesel", "essence": "Essence", "petrol": "Essence",
-    "hybride": "Hybride", "hybrid": "Hybride", "électrique": "Électrique",
-    "electrique": "Électrique", "electric": "Électrique",
 }
 MAX_PAGES_HARD_LIMIT = 50
 MAX_ITEMS_PER_RUN = 1000
