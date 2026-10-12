@@ -1,0 +1,16 @@
+{
+  "description": "Starter set of Morocco used-car searches. Replace URLs with the exact, authorized Avito result URLs that admins save in the MOROTTO console.",
+  "defaults": {
+    "max_pages": 5,
+    "delay_seconds_min": 2,
+    "delay_seconds_max": 5,
+    "location": "Maroc"
+  },
+  "brands": [
+    "Mercedes-Benz", "Toyota", "Peugeot", "Renault", "BMW", "Audi",
+    "Volkswagen", "Dacia", "Citroen", "Ford", "Hyundai", "Kia",
+    "Fiat", "Nissan", "Opel", "Skoda", "Seat", "Honda", "Suzuki",
+    "Mitsubishi", "Volvo", "Land Rover", "Jeep", "Porsche"
+  ],
+  "note": "The scraper intentionally does not auto-crawl this list or bypass anti-bot protections. Use saved admin search URLs only where you have permission to collect and reuse the content."
+}
