@@ -81,6 +81,15 @@ function generationForYear(kind, model, year, generationNumbers) {
   return null;
 }
 
+function explicitlyNamedGolfGeneration(value) {
+  const text = normal(value);
+  const numeric = text.match(/\bmk\s*([1-8])\b/) || text.match(/\bgolf\s+([1-8])\b/);
+  if (numeric) return Number(numeric[1]);
+  const roman = text.match(/\bgolf\s+(viii|vii|vi|iv|iii|ii|i|v)\b/);
+  if (!roman) return null;
+  return ({i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8})[roman[1]] || null;
+}
+
 function targetedQueries({kind, brand, model, year, clean, generationNumbers}) {
   const y = Number(year);
   const yValid = Number.isInteger(y) && y >= 1950 && y <= new Date().getFullYear() + 1;
@@ -223,7 +232,7 @@ export default async function handler(req, res) {
   if (!bucket || now - bucket.started >= 60000) ipBuckets.set(ip, { started: now, count: 1 });
   else bucket.count++;
 
-  const cacheKey = [normal(brand), normal(model), Number.isInteger(year) ? year : '', variant].join('|');
+  const cacheKey = ['road-photo-v2', normal(brand), normal(model), Number.isInteger(year) ? year : '', variant].join('|');
   const cached = memoryCache.get(cacheKey);
   if (cached && now - cached.at < CACHE_MS) {
     return send(res, 200, cached.result, 'public, s-maxage=21600, stale-while-revalidate=604800');
@@ -266,6 +275,11 @@ export default async function handler(req, res) {
         if (kind === 'golf' && /\b(gti|gtd|gte|r32|golf r|clubsport|tcr|cup edition)\b/.test(fullText)) return false;
         if (kind === 'fiesta' && /\b(fiesta st|st\s*\d{2,3}|fiesta rs|fiesta wrc)\b/.test(fullText)) return false;
         if (kind === 'polo' && /\b(polo gti|polo r wrc|polo r5|polo cup)\b/.test(fullText)) return false;
+        if (kind === 'golf') {
+          const expectedGeneration = generationForYear(kind, model, yearTerm, generationNumbers);
+          const namedGeneration = explicitlyNamedGolfGeneration(title);
+          if (expectedGeneration && namedGeneration && expectedGeneration !== namedGeneration) return false;
+        }
         if (kind === 'duster') {
           const generation = generationForYear(kind, model, yearTerm, generationNumbers);
           if (generation === 1 && /\b(duster ii|second generation|2018|2019|2020|2021|2022|2023|2024)\b/.test(title)) return false;
