@@ -13,4 +13,5 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - run: node --check api/demo-vehicle-image.js
       - run: npm run build
