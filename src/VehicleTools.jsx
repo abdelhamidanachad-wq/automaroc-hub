@@ -12,6 +12,61 @@ const generationSuffix = /\s*\((?:gen\s*)?\d+[^)]*\)\s*/ig;
 const baseModelName = value => String(value || '').replace(generationSuffix, ' ').replace(/\s+/g, ' ').trim();
 const fuelMatches = (listingFuel, selectedFuel) => selectedFuel === 'Tous' || normalize(listingFuel) === normalize(selectedFuel);
 
+const vehiclePhotoCache = new Map();
+const vehiclePhotoInflight = new Map();
+const photoVariantFor = value => {
+  const source = String(value ?? '');
+  let hash = 2166136261;
+  for (let i=0;i<source.length;i++) { hash ^= source.charCodeAt(i); hash = Math.imul(hash,16777619); }
+  return (hash >>> 0) % 4;
+};
+async function resolveVehiclePhoto(brand, model, year, variant) {
+  const key = [normalize(brand),normalize(model),String(year||''),String(variant)].join('|');
+  if (vehiclePhotoCache.has(key)) return vehiclePhotoCache.get(key);
+  if (vehiclePhotoInflight.has(key)) return vehiclePhotoInflight.get(key);
+  const pending = fetch('/api/demo-vehicle-image?' + new URLSearchParams({
+    brand: String(brand||''), model: String(model||''), year: String(year||''), variant: String(variant)
+  })).then(async response => {
+    const data = await response.json().catch(() => ({}));
+    const result = response.ok ? data : {imageUrl:null};
+    vehiclePhotoCache.set(key,result);
+    return result;
+  }).catch(() => {
+    const result={imageUrl:null};
+    vehiclePhotoCache.set(key,result);
+    return result;
+  }).finally(() => vehiclePhotoInflight.delete(key));
+  vehiclePhotoInflight.set(key,pending);
+  return pending;
+}
+
+export function VehiclePhoto({brand, model, year, listingId, alt}) {
+  const variant = useMemo(() => photoVariantFor(listingId ?? [brand,model,year].join('-')), [listingId,brand,model,year]);
+  const requestKey = [normalize(brand),normalize(model),String(year||''),String(variant)].join('|');
+  const [state,setState] = useState({key:'',result:null});
+  const [imageFailed,setImageFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setImageFailed(false);
+    setState({key:requestKey,result:null});
+    resolveVehiclePhoto(brand,model,year,variant).then(result => {
+      if (active) setState({key:requestKey,result});
+    });
+    return () => { active=false; };
+  },[brand,model,year,variant,requestKey]);
+  const result = state.key===requestKey ? state.result : null;
+  if (result?.imageUrl && !imageFailed) return <>
+    <img src={result.imageUrl} alt={alt || [brand,model,year].filter(Boolean).join(' ')} loading="lazy" onError={() => setImageFailed(true)}/>
+    {result.sourceUrl && <a className="vehicle-photo-credit" href={result.sourceUrl} target="_blank" rel="noreferrer" title={`Image: ${result.title || [brand,model].join(' ')} · ${result.artist || 'Wikimedia Commons contributor'} · ${result.license || 'See source page'}`} onClick={e=>e.stopPropagation()}>Photo · {result.license || 'Wikimedia Commons'} <ArrowRight size={11}/></a>}
+  </>;
+  return <div className="vehicle-photo-placeholder" role="img" aria-label={`Photo exacte indisponible pour ${brand} ${model}`}>
+    <Car size={38} strokeWidth={1.35}/>
+    <span>{result ? 'Photo exacte non trouvée' : 'Recherche de photo du modèle…'}</span>
+    <strong>{brand} {model}</strong>
+    <small>{year ? 'Année ' + year : 'Illustration de modèle'}</small>
+  </div>;
+}
+
 function PageIntro({eyebrow,title,desc}) {
   return <div className="page-intro"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{desc}</p></div>;
 }
