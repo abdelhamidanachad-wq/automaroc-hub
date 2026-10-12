@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Camera, Calculator, Car, Fuel, Gauge, MapPin, Search, ShieldCheck, SlidersHorizontal, Info, Sparkles, Upload, RotateCcw, X, CheckCircle2 } from 'lucide-react';
-import { brandsForCategory, modelsFor } from './vehicleCatalog.js';
+import { brandsForCategory } from './vehicleCatalog.js';
 import { supabase } from './lib/supabase.js';
 
 const money = value => new Intl.NumberFormat('fr-MA', { maximumFractionDigits: 0 }).format(Number(value) || 0) + ' DH';
@@ -159,7 +159,7 @@ export function CarValueEstimator({ vehicles = [] }) {
           {photoError && <p className="vt-photo-error">{photoError}</p>}
         </div>
         <label className="form-label" htmlFor="vt-brand">Marque</label>
-        <select id="vt-brand" className="form-select" value={brand} onChange={e=>{setBrand(e.target.value);setModel('')}}>{carBrands.map(b=><option key={b} value={b}>{b}</option>)}</select>
+        <select id="vt-brand" className="form-select" value={brand} onChange={e=>{setBrand(e.target.value);setModel('')}}>{[...new Set([...carBrands,brand])].sort((a,b)=>a.localeCompare(b,'fr')).map(b=><option key={b} value={b}>{b}</option>)}</select>
         <label className="form-label" htmlFor="vt-model">Modèle ou génération</label>
         <input id="vt-model" className="form-select" list="vt-model-options" value={model} onChange={e=>setModel(e.target.value)} placeholder="Ex. Sandero (Gen 3), Clio 5, Golf 7…"/>
         <datalist id="vt-model-options">{modelOptions.map(m=><option key={m} value={m}/>)}</datalist>
