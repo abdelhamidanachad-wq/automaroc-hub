@@ -86,8 +86,10 @@ function explicitlyNamedGolfGeneration(value) {
   const numeric = text.match(/\bmk\s*([1-8])\b/) || text.match(/\bgolf\s+([1-8])\b/);
   if (numeric) return Number(numeric[1]);
   const roman = text.match(/\bgolf\s+(viii|vii|vi|iv|iii|ii|i|v)\b/);
-  if (!roman) return null;
-  return ({i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8})[roman[1]] || null;
+  if (roman) return ({i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8})[roman[1]] || null;
+  const platform = text.match(/\b(19e|1h|1j|1k|5k|5g|cd1)\b/);
+  if (!platform) return null;
+  return ({'19e':2,'1h':3,'1j':4,'1k':5,'5k':6,'5g':7,'cd1':8})[platform[1]] || null;
 }
 
 function targetedQueries({kind, brand, model, year, clean, generationNumbers}) {
@@ -286,7 +288,9 @@ export default async function handler(req, res) {
           if (generation === 2 && /\b(duster i|first generation|2010|2011|2012|2013|2014|2015|2016|2017)\b/.test(title)) return false;
         }
         if (!license || /all rights reserved|non free|fair use|non commercial|noncommercial/.test(license)) return false;
-        const modelMatch = [...modelTokens, ...codeTokens].some(token => tokenPresent(fullText, token));
+        const expectedGolfGeneration = kind === 'golf' ? generationForYear(kind, model, yearTerm, generationNumbers) : null;
+        const golfGenerationMatch = kind === 'golf' && expectedGolfGeneration && explicitlyNamedGolfGeneration(title) === expectedGolfGeneration;
+        const modelMatch = [...modelTokens, ...codeTokens].some(token => tokenPresent(fullText, token)) || golfGenerationMatch;
         if (!modelMatch) return false;
         return true;
       })
