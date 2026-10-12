@@ -12,6 +12,61 @@ const generationSuffix = /\s*\((?:gen\s*)?\d+[^)]*\)\s*/ig;
 const baseModelName = value => String(value || '').replace(generationSuffix, ' ').replace(/\s+/g, ' ').trim();
 const fuelMatches = (listingFuel, selectedFuel) => selectedFuel === 'Tous' || normalize(listingFuel) === normalize(selectedFuel);
 
+const vehiclePhotoCache = new Map();
+const vehiclePhotoInflight = new Map();
+const photoVariantFor = value => {
+  const source = String(value ?? '');
+  let hash = 2166136261;
+  for (let i=0;i<source.length;i++) { hash ^= source.charCodeAt(i); hash = Math.imul(hash,16777619); }
+  return (hash >>> 0) % 4;
+};
+async function resolveVehiclePhoto(brand, model, year, variant) {
+  const key = [normalize(brand),normalize(model),String(year||''),String(variant)].join('|');
+  if (vehiclePhotoCache.has(key)) return vehiclePhotoCache.get(key);
+  if (vehiclePhotoInflight.has(key)) return vehiclePhotoInflight.get(key);
+  const pending = fetch('/api/demo-vehicle-image?' + new URLSearchParams({
+    brand: String(brand||''), model: String(model||''), year: String(year||''), variant: String(variant)
+  })).then(async response => {
+    const data = await response.json().catch(() => ({}));
+    const result = response.ok ? data : {imageUrl:null};
+    vehiclePhotoCache.set(key,result);
+    return result;
+  }).catch(() => {
+    const result={imageUrl:null};
+    vehiclePhotoCache.set(key,result);
+    return result;
+  }).finally(() => vehiclePhotoInflight.delete(key));
+  vehiclePhotoInflight.set(key,pending);
+  return pending;
+}
+
+export function VehiclePhoto({brand, model, year, listingId, alt}) {
+  const variant = useMemo(() => photoVariantFor(listingId ?? [brand,model,year].join('-')), [listingId,brand,model,year]);
+  const requestKey = [normalize(brand),normalize(model),String(year||''),String(variant)].join('|');
+  const [state,setState] = useState({key:'',result:null});
+  const [imageFailed,setImageFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setImageFailed(false);
+    setState({key:requestKey,result:null});
+    resolveVehiclePhoto(brand,model,year,variant).then(result => {
+      if (active) setState({key:requestKey,result});
+    });
+    return () => { active=false; };
+  },[brand,model,year,variant,requestKey]);
+  const result = state.key===requestKey ? state.result : null;
+  if (result?.imageUrl && !imageFailed) return <>
+    <img src={result.imageUrl} alt={alt || [brand,model,year].filter(Boolean).join(' ')} loading="lazy" onError={() => setImageFailed(true)}/>
+    {result.sourceUrl && <a className="vehicle-photo-credit" href={result.sourceUrl} target="_blank" rel="noreferrer" title={`Image: ${result.title || [brand,model].join(' ')} · ${result.artist || 'Wikimedia Commons contributor'} · ${result.license || 'See source page'}`} onClick={e=>e.stopPropagation()}>{(result.artist && result.artist !== 'Wikimedia Commons contributor' ? result.artist : 'Wikimedia Commons').slice(0,34)} · {result.license || 'Licence'} <ArrowRight size={11}/></a>}
+  </>;
+  return <div className="vehicle-photo-placeholder" role="img" aria-label={`Photo exacte indisponible pour ${brand} ${model}`}>
+    <Car size={38} strokeWidth={1.35}/>
+    <span>{result ? 'Photo exacte non trouvée' : 'Recherche de photo du modèle…'}</span>
+    <strong>{brand} {model}</strong>
+    <small>{year ? 'Année ' + year : 'Illustration de modèle'}</small>
+  </div>;
+}
+
 function PageIntro({eyebrow,title,desc}) {
   return <div className="page-intro"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{desc}</p></div>;
 }
@@ -256,7 +311,7 @@ export function BudgetCarFinder({ vehicles = [], demoListings = [], demoListings
         {demoListings.length>0&&<div className="vt-demo-note"><Info size={16}/><span>Les fiches marquées <b>DÉMO — PAS UNE OFFRE</b> sont des exemples synthétiques. Elles ne correspondent pas à des voitures réelles à vendre et ne permettent pas de contacter un vendeur.</span></div>}
         {demoListingsError&&<div className="vt-photo-error">Les fiches démo n’ont pas pu être chargées depuis Supabase. Les annonces réelles publiées restent disponibles.</div>}
         {results.length ? <div className="vt-finder-list">{results.slice(0,30).map(v=><article className={'vt-finder-card '+(v.demo?'is-demo-listing':'')} key={(v.demo?'demo-':'real-')+v.id}>
-          <div className="vt-finder-card-image"><img src={v.image} alt={`${v.brand} ${v.model}`} loading="lazy" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80'}}/>{v.demo&&<span className="vt-demo-overlay">DÉMO · PAS UNE OFFRE</span>}</div>
+          <div className="vt-finder-card-image">{v.demo ? <VehiclePhoto brand={v.brand} model={v.model} year={v.year} listingId={v.id} alt={`${v.brand} ${v.model}, année ${v.year}, véhicule démo`}/> : <img src={v.image || ''} alt={`${v.brand} ${v.model}`} loading="lazy" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80'}}/>}{v.demo&&<span className="vt-demo-overlay">DÉMO · PAS UNE OFFRE</span>}</div>
           <div className="vt-finder-card-body"><div className="vt-card-meta"><span>{v.brand}</span><span>{v.year}</span></div><h3>{v.model}</h3><strong>{money(v.price)}</strong><div className="vt-card-specs"><span><Fuel size={14}/>{v.fuel}</span><span><Gauge size={14}/>{Number(v.mileage||0).toLocaleString('fr-MA')} km</span><span><MapPin size={14}/>{v.city}</span></div><button className="btn primary" type="button" onClick={()=>onDetails?.(v)}>{v.demo?'Voir la fiche démo':'Voir l’annonce'} <ArrowRight size={15}/></button></div>
         </article>)}</div> : demoListingsLoading ? <NoLiveListings title="Chargement des fiches de démonstration…" desc="Nous récupérons les exemples depuis Supabase. Les fiches seront mélangées aux annonces réelles publiées."/> : <NoLiveListings title="Aucun véhicule dans ce budget" desc={allVehicles.length ? 'Élargissez la fourchette ou retirez un filtre pour trouver plus de résultats.' : 'Aucune annonce réelle n’est publiée pour le moment. Les fiches de démonstration ne sont pas disponibles.'}/>}
         {results.length>30&&<p className="vt-disclaimer">30 fiches affichées sur {results.length.toLocaleString('fr-MA')} résultats. Modifiez les filtres ou mélangez l’ordre pour explorer d’autres résultats.</p>}
