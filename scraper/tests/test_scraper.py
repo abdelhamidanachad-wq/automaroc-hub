@@ -1,6 +1,6 @@
 import unittest
 
-from scraper import clean_text, infer_brand, infer_fuel, listing_id_from_url, parse_number, validate_target_url
+from scraper.scraper import clean_text, infer_brand, infer_fuel, listing_id_from_url, parse_number, validate_target_url
 
 
 class ScraperNormalizationTests(unittest.TestCase):
