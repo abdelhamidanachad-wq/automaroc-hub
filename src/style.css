@@ -73,3 +73,16 @@
 @media(max-width:880px){.insurance-partners-strip{grid-template-columns:1fr;gap:15px}.insurance-partner-logos{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:620px){.market-sort-controls{width:100%;justify-content:stretch}.market-sort-controls .form-select{flex:1;min-width:0}.shuffle-listings-button{justify-content:center}.insurance-partner-logos{grid-template-columns:repeat(3,minmax(0,1fr))}.insurance-partner-logo{min-height:96px}.vt-photo-box{padding:12px}.vt-photo-preview>img{width:78px;height:64px}}
 @media(prefers-reduced-motion:reduce){.vt-spinner{animation:none}.vehicle-card,.service-tile,.rental-card,.article-card,.vt-finder-card,.insurance-partner-logo,.vt-budget-presets button,.shuffle-listings-button{transition:none}.vehicle-card:hover,.rental-card:hover,.article-card:hover,.service-tile:hover,.vt-finder-card:hover,.insurance-partner-logo:hover{transform:none}}
+
+
+/* Budget finder demo labels and shuffled result cards */
+.vt-demo-note{display:flex;align-items:flex-start;gap:9px;margin:12px 0 17px;padding:12px 14px;border:1px solid #ecd8a9;background:#fff8e8;color:#7b5b1a;border-radius:12px;font-size:11px;line-height:1.6}
+.vt-demo-note svg{flex:0 0 auto;margin-top:1px}
+.vt-finder-card-image{position:relative;overflow:hidden;border-radius:14px 14px 0 0;background:#eef2ee}
+.vt-demo-overlay{position:absolute;left:9px;right:9px;bottom:9px;display:block;width:max-content;max-width:calc(100% - 18px);padding:6px 9px;border-radius:7px;background:#fff0c9;color:#765311;border:1px solid #ecd79e;font-size:9px;font-weight:900;letter-spacing:.035em;box-shadow:0 2px 10px rgba(40,30,5,.1)}
+.vt-finder-card.is-demo-listing{border:1px dashed #d9bd78;background:#fffefa}
+.vt-finder-card.is-demo-listing .vt-finder-card-body>strong{color:#8a6b26}
+.vt-finder-card.is-demo-listing .vt-finder-card-body .btn{background:#f0e4c9;color:#614817;border-color:#e4d0a3}
+.vt-finder-card.is-demo-listing .vt-finder-card-body .btn:hover{background:#e8d8b5}
+.vt-finder-card-image>img{display:block;width:100%;height:190px;object-fit:cover}
+@media(max-width:620px){.vt-finder-card-image>img{height:180px}.vt-demo-note{font-size:10px}}
