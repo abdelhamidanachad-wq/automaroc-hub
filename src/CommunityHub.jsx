@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ArrowUpRight, MapPin, Navigation, Search, ShieldCheck, Wrench, Package, CarFront, MessageCircle, RefreshCw, ExternalLink, Send, BadgeCheck } from 'lucide-react';
+import { ArrowUpRight, MapPin, Navigation, Search, ShieldCheck, Wrench, Package, CarFront, MessageCircle, RefreshCw, ExternalLink, Send, BadgeCheck, BookOpen } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 import './community-hub.css';
 import { moroccoPriceGuide } from './moroccoPriceGuide.js';
@@ -12,6 +12,7 @@ const sections = [
   ['services', 'Mécanique & garages', Wrench],
   ['parts', 'Pièces auto', Package],
   ['community', 'Communauté', MessageCircle],
+  ['guides', 'Guides & astuces', BookOpen],
   ['pricing', 'Prix atelier', Wrench],
   ['navigation', 'Navigation', Navigation],
 ];
@@ -24,7 +25,7 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
   const [vehicleBrand, setVehicleBrand] = useState('Dacia');
   const [vehicleModel, setVehicleModel] = useState('Logan (Gen 2)');
   const [vehicleYear, setVehicleYear] = useState('2018');
-  const [data, setData] = useState({ rentals: demoRentals, insurance: demoInsurance, services: [], parts: demoParts, pricing: demoWorkshopPricing, community: [] });
+  const [data, setData] = useState({ rentals: demoRentals, insurance: demoInsurance, services: [], parts: demoParts, pricing: demoWorkshopPricing, community: [], guides: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [destination, setDestination] = useState('');
@@ -37,18 +38,26 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
   const refresh = useCallback(async () => {
     if (!supabase) { setLoading(false); setError('Supabase n’est pas configuré.'); return; }
     setLoading(true); setError('');
+    const articleLocale = ['it', 'es'].includes(language) ? 'en' : ['fr', 'en', 'ar'].includes(language) ? language : 'fr';
     const specs = [
       ['rentals', 'rental_offers', 'created_at'],
       ['insurance', 'insurance_offers', 'created_at'],
       ['services', 'service_providers', 'created_at'],
       ['parts', 'parts_listings', 'created_at'],
       ['community', 'community_posts', 'created_at'],
+      ['guides', 'knowledge_base', 'created_at'],
     ];
     const results = await Promise.all(specs.map(async ([key, table, order]) => {
-      const result = await supabase.from(table).select('*').eq('status', 'published').order(order, { ascending: false }).limit(100);
+      let request = supabase.from(table).select('*');
+      if (key === 'guides') {
+        request = request.eq('is_published', true).eq('locale', articleLocale).order('category', { ascending: true }).order('title', { ascending: true });
+      } else {
+        request = request.eq('status', 'published').order(order, { ascending: false });
+      }
+      const result = await request.limit(100);
       return [key, result];
     }));
-    const next = { rentals: [], insurance: [], services: [], parts: [], pricing: demoWorkshopPricing, community: [] };
+    const next = { rentals: [], insurance: [], services: [], parts: [], pricing: demoWorkshopPricing, community: [], guides: [] };
     const errors = [];
     for (const [key, result] of results) {
       if (result.error) errors.push(result.error.message);
@@ -57,12 +66,12 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
     setData({ ...next, rentals: [...next.rentals, ...demoRentals], insurance: [...next.insurance, ...demoInsurance], parts: [...next.parts, ...demoParts] });
     if (errors.length) setError('Certaines rubriques ne sont pas encore disponibles. Appliquez la migration communautaire Supabase. ' + errors[0]);
     setLoading(false);
-  }, []);
+  }, [language]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
   const matches = item => {
-    const text = [item.title, item.name, item.provider_name, item.insurer_name, item.offer_name, item.vehicle_brand, item.vehicle_model, item.city, item.part_category, item.brand, item.body, item.coverage_summary, item.compatible_vehicles, item.years].filter(Boolean).join(' ').toLocaleLowerCase();
+    const text = [item.title, item.name, item.provider_name, item.insurer_name, item.offer_name, item.vehicle_brand, item.vehicle_model, item.city, item.part_category, item.brand, item.body, item.excerpt, item.content, item.coverage_summary, item.compatible_vehicles, item.years, ...(item.tags || [])].filter(Boolean).join(' ').toLocaleLowerCase();
     return text.includes(query.trim().toLocaleLowerCase());
   };
 
@@ -101,7 +110,7 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
       </div>
       <div className="community-hero-mark"><Navigation size={34}/><span>MOROTTO</span><small>ENSEMBLE SUR LA ROUTE</small></div>
     </div>
-    <div className="community-tabs">{sections.map(([id, label, Icon]) => <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}><Icon size={17}/>{id === 'rentals' ? t(language,'rentals') : id === 'insurance' ? t(language,'insurance') : id === 'services' ? t(language,'mechanics') : id === 'parts' ? t(language,'parts') : id === 'community' ? t(language,'community') : id === 'pricing' ? t(language,'workshopPrices') : label}<span>{id === 'navigation' ? 'GPS' : data[id]?.length ?? 0}</span></button>)}</div>
+    <div className="community-tabs">{sections.map(([id, label, Icon]) => <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}><Icon size={17}/>{id === 'rentals' ? t(language,'rentals') : id === 'insurance' ? t(language,'insurance') : id === 'services' ? t(language,'mechanics') : id === 'parts' ? t(language,'parts') : id === 'community' ? t(language,'community') : id === 'pricing' ? t(language,'workshopPrices') : id === 'guides' ? t(language,'learn') : label}<span>{id === 'navigation' ? 'GPS' : data[id]?.length ?? 0}</span></button>)}</div>
     {section === 'navigation' ? <div className="community-panel route-panel">
       <span className="community-eyebrow">NAVIGATION</span><h2>Où voulez-vous aller ?</h2>
       <p>Entrez une adresse, un quartier ou un lieu au Maroc. MOROTTO ouvrira l’itinéraire dans l’application choisie.</p>
@@ -115,6 +124,17 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
       {error && <div className="community-notice"><ShieldCheck size={18}/><span>{error}</span></div>}
       {loading ? <div className="community-empty">Chargement des données publiées…</div> : filtered.length ? <div className="community-cards">
         {filtered.map(item => {
+          if (section === 'guides') return <article className="community-card community-article-card" key={item.id}>
+            <span className="community-card-icon"><BookOpen/></span>
+            <span className="community-tag">{item.category || t(language,'learn')}</span>
+            <h3>{item.title}</h3>
+            {item.excerpt && <p>{item.excerpt}</p>}
+            <details className="community-article-details">
+              <summary>{language === 'ar' ? 'اقرأ المقال' : language === 'en' || language === 'it' || language === 'es' ? 'Read article' : 'Lire l’article'}</summary>
+              <div className="community-article-content">{item.content}</div>
+            </details>
+            {item.tags?.length > 0 && <small className="community-article-tags">{item.tags.join(' · ')}</small>}
+          </article>;
           if (section === 'pricing') return <article className="community-card pricing-card" key={item.id}><span className="community-card-icon"><Wrench/></span><span className="community-tag">GUIDE DE DÉMO · {item.years}</span><h3>{item.brand} {item.model}</h3><p>Fourchette véhicule de référence : {money(item.min)} – {money(item.max)} · Carburant : {item.fuel}</p><div className="pricing-lines"><span>Vidange + filtre <b>{money(item.oilMin)} – {money(item.oilMax)}</b></span><span>Plaquettes de frein <b>{money(item.brakesMin)} – {money(item.brakesMax)}</b></span><span>Batterie <b>{money(item.batteryMin)} – {money(item.batteryMax)}</b></span><span>Diagnostic <b>{money(item.diagnosticMin)} – {money(item.diagnosticMax)}</b></span><span>Kit distribution <b>{money(item.timingMin)} – {money(item.timingMax)}</b></span></div><p className="demo-disclaimer">Prix fictifs de maquette, pas un devis garage. Confirmer motorisation, VIN et pièces.</p></article>;
           if (section === 'rentals') return <article className="community-card" key={item.id}><span className="community-card-icon"><CarFront/></span><span className="community-tag">{item.demo ? 'DÉMO · AGENCE FICTIVE' : 'Loueur'}</span><h3>{item.title}</h3><p>{item.provider_name} · {item.vehicle_brand} {item.vehicle_model}{item.vehicle_year ? ' · ' + item.vehicle_year : ''}</p><div className="community-card-bottom"><b>{money(item.price_mad)} <small>{period(item.billing_period)}</small></b><span>{item.city}</span></div>{item.contact_phone && <a href={'tel:' + item.contact_phone} className="community-card-link">Contacter le loueur <ArrowUpRight size={15}/></a>}</article>;
           if (section === 'insurance') return <article className="community-card" key={item.id}><span className="community-card-icon"><ShieldCheck/></span><span className="community-tag">{item.demo ? 'COMPARATIF DÉMO' : 'Offre publiée'}</span><h3>{item.insurer_name}</h3><p>{item.offer_name}</p><p>{item.coverage_summary}</p><p className="insurance-vehicle">Véhicule choisi : {vehicleBrand} {selectedGuide?.model || vehicleModel} · {vehicleYear}</p><div className="community-card-bottom"><b>{money(item.demo ? Math.round((item.price_from_mad || 0) * vehicleFactor * yearFactor / 25) * 25 : item.price_from_mad)}</b>{item.valid_until && <span>Valide jusqu’au {item.valid_until}</span>}</div>{item.quote_url && <a className="community-card-link" href={item.quote_url} target="_blank" rel="noreferrer">Demander un devis <ExternalLink size={15}/></a>}{item.contact_phone && <a className="community-card-link" href={'tel:' + item.contact_phone}>Appeler <ArrowUpRight size={15}/></a>}</article>;
@@ -122,7 +142,7 @@ export default function CommunityHub({ user, notify, language = 'fr', initialSec
           if (section === 'parts') return <article className="community-card" key={item.id}>{item.image_url && <img className="community-part-image" src={item.image_url} alt={item.title} loading="lazy"/>}<span className="community-card-icon"><Package/></span><span className="community-tag">{item.demo ? 'DÉMO · ' : ''}{({new:'Neuf',used:'Occasion',refurbished:'Reconditionné'}[item.condition] || item.condition)} · {item.part_category}</span><h3>{item.title}</h3><p>{[item.brand, item.compatible_vehicles, item.city].filter(Boolean).join(' · ')}</p>{item.description && <p>{item.description}</p>}<div className="community-card-bottom"><b>{money(item.price_mad)}</b></div>{item.contact_phone && <a className="community-card-link" href={'tel:' + item.contact_phone}>Contacter le vendeur <ArrowUpRight size={15}/></a>}</article>;
           return <article className="community-card community-post" key={item.id}><span className="community-card-icon"><MessageCircle/></span><span className="community-tag">{item.topic?.replaceAll('_', ' ') || 'Communauté'}{item.city ? ' · ' + item.city : ''}</span><h3>{item.title}</h3><p>{item.body}</p><small>Publié le {new Date(item.created_at).toLocaleDateString('fr-MA')}</small></article>;
         })}
-      </div> : <div className="community-empty"><span className="community-empty-icon">{section === 'parts' ? <Package/> : section === 'services' ? <Wrench/> : section === 'insurance' ? <ShieldCheck/> : <CarFront/>}</span><h3>Aucune offre publiée pour le moment</h3><p>Les entrées marquées DÉMO sont des exemples synthétiques pour tester l’interface et ne sont ni des annonces réelles, ni des offres commerciales, ni des devis.</p></div>}
+      </div> : <div className="community-empty"><span className="community-empty-icon">{section === 'guides' ? <BookOpen/> : section === 'parts' ? <Package/> : section === 'services' ? <Wrench/> : section === 'insurance' ? <ShieldCheck/> : <CarFront/>}</span><h3>{section === 'guides' ? (language === 'ar' ? 'لا توجد مقالات منشورة حالياً' : language === 'en' || language === 'it' || language === 'es' ? 'No published articles yet' : 'Aucun article publié pour le moment') : 'Aucune offre publiée pour le moment'}</h3><p>{section === 'guides' ? (language === 'ar' ? 'ستظهر هنا أدلة ونصائح السيارات بعد نشرها.' : language === 'en' || language === 'it' || language === 'es' ? 'Automotive guides and community help articles will appear here once published.' : 'Les guides automobiles et articles d’aide apparaîtront ici une fois publiés.') : 'Les entrées marquées DÉMO sont des exemples synthétiques pour tester l’interface et ne sont ni des annonces réelles, ni des offres commerciales, ni des devis.'}</p></div>}
       {section === 'community' && <form className="community-compose" onSubmit={createPost}><h3>Partager avec la communauté</h3><p>Posez une question, partagez un conseil d’entretien ou racontez votre expérience sur la route.</p><select value={postTopic} onChange={e => setPostTopic(e.target.value)}><option value="general">Discussion générale</option><option value="buying_advice">Conseils d’achat</option><option value="maintenance">Entretien</option><option value="road_trip">Voyage & route</option><option value="parts">Pièces auto</option><option value="safety">Sécurité routière</option></select><input value={postTitle} onChange={e => setPostTitle(e.target.value)} placeholder="Titre de votre publication" maxLength={120} required/><textarea value={postBody} onChange={e => setPostBody(e.target.value)} placeholder="Votre message…" maxLength={5000} rows={4} required/><button className="community-primary" disabled={posting}><Send size={16}/>{posting ? 'Publication…' : user ? 'Publier' : 'Connectez-vous pour publier'}</button></form>}
     </>}
     <div className="community-trust"><BadgeCheck size={18}/><p>Les offres commerciales ne doivent être publiées qu’avec l’autorisation de la source et après vérification par l’équipe MOROTTO. Le nombre d’offres affiché correspond aux enregistrements réellement publiés, jamais à un objectif marketing.</p></div>
