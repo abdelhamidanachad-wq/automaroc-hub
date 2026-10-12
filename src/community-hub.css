@@ -15,3 +15,10 @@
 
 
 .insurance-demo-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:18px;border:1px solid #dfe9e2;background:#f8fbf9;border-radius:16px;margin:14px 0 20px}.insurance-demo-filters>div{display:grid;gap:6px}.insurance-demo-filters label{font-size:12px;font-weight:800;color:#496352}.insurance-demo-filters select{min-width:0;padding:11px;border:1px solid #d6e2d9;border-radius:10px;background:#fff;color:#203b2c;font:inherit}.insurance-demo-filters p{grid-column:1/-1;margin:0;color:#6c7c71;font-size:12px;line-height:1.5}.insurance-vehicle{padding:9px 10px;background:#f6f8f6;border-radius:8px;font-weight:700}.demo-disclaimer{margin-top:14px!important;padding-top:10px;border-top:1px solid #edf1ee;font-size:11px!important}.pricing-lines{display:grid;gap:0;width:100%;margin:10px 0 14px}.pricing-lines span{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #edf1ee;font-size:12px;color:#64766a}.pricing-lines b{color:#1a5438;text-align:right}.pricing-card{grid-column:span 1}@media(max-width:700px){.insurance-demo-filters{grid-template-columns:1fr}.insurance-demo-filters p{grid-column:auto}.pricing-lines span{align-items:flex-start;flex-direction:column}.pricing-lines b{text-align:left}}
+
+
+.community-article-details{margin-top:14px;border-top:1px solid #e6ece7;padding-top:12px}
+.community-article-details summary{cursor:pointer;list-style-position:inside;color:#205b3d;font-size:13px;font-weight:800}
+.community-article-content{margin-top:12px;color:#53685a;font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
+.community-article-tags{display:block;margin-top:13px;color:#829087;font-size:10px;line-height:1.6}
+.community-article-card .community-tag{text-transform:none}
