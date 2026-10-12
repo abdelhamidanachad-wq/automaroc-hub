@@ -18,3 +18,58 @@
 
 
 .language-switcher{display:flex;align-items:center;gap:4px;border:1px solid #dce6df;border-radius:10px;padding:3px 7px;background:#fff;color:#254432}.language-switcher select{border:0;outline:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:800;padding:5px 1px;cursor:pointer;min-width:38px}.app-shell[dir="rtl"]{direction:rtl}.app-shell[dir="rtl"] .vehicle-info,.app-shell[dir="rtl"] .hero-copy,.app-shell[dir="rtl"] .admin-overview-grid button{text-align:right}.app-shell[dir="rtl"] .top-actions{direction:rtl}@media(max-width:760px){.language-switcher{padding:2px 5px}.language-switcher select{min-width:34px}}
+
+
+/* Vehicle tools: photo-first estimator and easier budget discovery */
+.vt-photo-box{display:grid;gap:12px;margin:4px 0 22px;padding:16px;border:1px solid #dce9e0;border-radius:16px;background:linear-gradient(145deg,#f6fbf7,#eef7f1)}
+.vt-photo-heading{display:flex;align-items:center;gap:11px}.vt-photo-heading>div{display:grid;gap:3px}.vt-photo-heading b{font-size:13px;color:#1c3b2b}.vt-photo-heading small{font-size:11px;color:#718176}
+.vt-photo-icon,.vt-budget-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#dff5e8;color:#1e865b;flex:0 0 auto}
+.vt-photo-picker{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 12px;border:1px dashed #7bb997;border-radius:11px;background:#fff;color:#20573b;font-weight:800;font-size:12px;cursor:pointer;text-align:center}
+.vt-photo-picker input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.vt-photo-preview{display:flex;align-items:center;gap:12px;min-width:0;padding:10px;background:#fff;border:1px solid #e0eae3;border-radius:12px}
+.vt-photo-preview>img{width:92px;height:72px;object-fit:cover;border-radius:8px;background:#eaf1eb;flex:0 0 auto}
+.vt-photo-preview>div{display:grid;gap:5px;min-width:0}.vt-photo-preview b{overflow-wrap:anywhere;font-size:12px;color:#244231}.vt-photo-preview small{font-size:10px;line-height:1.45;color:#728176}
+.vt-photo-clear{display:flex;align-items:center;gap:4px;width:max-content;border:0;background:none;padding:2px 0;color:#7c554c;font-size:11px;font-weight:700}
+.vt-ai-button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.vt-spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:vtSpin .7s linear infinite}
+.vt-ai-result,.vt-guide-match{display:flex;align-items:flex-start;gap:8px;padding:10px 11px;border-radius:10px;background:#e8f7ed;color:#236b45;font-size:11px;line-height:1.55}
+.vt-ai-result svg,.vt-guide-match svg{flex:0 0 auto;margin-top:1px}
+.vt-photo-warning{font-size:11px;line-height:1.5;margin:0!important;color:#6e6b37!important}
+.vt-photo-error{font-size:11px;line-height:1.55;margin:0!important;padding:10px 11px;background:#fff1ef;border:1px solid #f3d5d1;border-radius:10px;color:#9a3e34!important}
+.vt-guide-loading{font-size:11px;margin:0;color:#7e8b80}
+.vt-guide-range{background:linear-gradient(145deg,#eef9f1,#e6f5ed);border-color:#c9e7d4}
+.vt-guide-range strong{color:#1d774b}
+.vt-budget-icon{width:42px;height:42px}
+.vt-budget-display{display:grid;gap:3px;margin:18px 0 8px;padding:16px;border-radius:14px;background:linear-gradient(135deg,#e9f7ee,#dff2e7);border:1px solid #d1eadb}
+.vt-budget-display span{font-size:11px;font-weight:800;letter-spacing:.04em;color:#52695b;text-transform:uppercase}.vt-budget-display strong{font-size:25px;letter-spacing:-.04em;color:#184831}.vt-budget-display small{font-size:11px;color:#708075}
+.vt-budget-range{margin:12px 0 4px;width:100%;accent-color:#21865a}
+.vt-budget-presets{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 18px}
+.vt-budget-presets button{border:1px solid #dce7df;background:#fff;border-radius:10px;color:#456251;padding:8px 10px;font-size:11px;font-weight:800;transition:background .18s,border-color .18s,color .18s}
+.vt-budget-presets button:hover,.vt-budget-presets button.active{background:#1e5c3c;border-color:#1e5c3c;color:#fff}
+.vt-divider{display:flex;align-items:center;gap:10px;margin:17px 0 13px;color:#88958c;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.vt-divider:before,.vt-divider:after{content:"";height:1px;background:#e5ece7;flex:1}
+.vt-results-head>div p{font-size:12px;margin:7px 0 0;color:#738177}
+.vt-finder-card{transition:transform .2s ease,box-shadow .2s ease}
+.vt-finder-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(21,64,40,.1)}
+.market-sort-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.market-sort-controls .form-select{width:auto;min-width:148px}
+.shuffle-listings-button{display:inline-flex;align-items:center;gap:7px;padding:10px 12px;border-radius:11px;background:#eaf7ef;color:#1d6945;border:1px solid #d8ebdf;font-size:12px;font-weight:800;white-space:nowrap;transition:transform .18s,background .18s}
+.shuffle-listings-button:hover{transform:translateY(-1px);background:#daf1e3}
+.insurance-partners-strip{display:grid;grid-template-columns:minmax(190px,260px) 1fr;gap:22px;align-items:center;margin:22px 0;padding:18px;border:1px solid #e0e9e3;border-radius:18px;background:linear-gradient(135deg,#fff,#f6faf7)}
+.insurance-partners-copy .eyebrow{font-size:10px}.insurance-partners-copy p{font-size:11px;line-height:1.55;margin:8px 0 0;color:#6c7b70}
+.insurance-partner-logos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.insurance-partner-logo{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:105px;padding:10px 7px;border:1px solid #e7eee9;border-radius:13px;background:#fff;text-decoration:none;color:#254333;transition:transform .18s,box-shadow .18s,border-color .18s}
+.insurance-partner-logo:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(24,62,42,.08);border-color:#c4ddcd}
+.insurance-partner-mark{position:relative;display:grid;place-items:center;width:74px;height:43px;overflow:hidden;border-radius:7px;background:#fff}
+.insurance-partner-mark img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.insurance-partner-mark img[data-failed="true"]{display:none}
+.insurance-partner-mark b{font-size:11px;letter-spacing:-.035em;color:#245338;text-align:center}
+.insurance-partner-logo strong{font-size:10px;text-align:center;line-height:1.3}
+.insurance-partner-logo small{font-size:9px;text-align:center;color:#8a968e;line-height:1.25}
+.vehicle-card,.service-tile,.rental-card,.article-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.vehicle-card:hover,.rental-card:hover,.article-card:hover{transform:translateY(-3px);box-shadow:0 13px 32px rgba(20,56,36,.1)}
+.service-tile:hover{transform:translateY(-2px)}
+@keyframes vtSpin{to{transform:rotate(360deg)}}
+@media(max-width:880px){.insurance-partners-strip{grid-template-columns:1fr;gap:15px}.insurance-partner-logos{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:620px){.market-sort-controls{width:100%;justify-content:stretch}.market-sort-controls .form-select{flex:1;min-width:0}.shuffle-listings-button{justify-content:center}.insurance-partner-logos{grid-template-columns:repeat(3,minmax(0,1fr))}.insurance-partner-logo{min-height:96px}.vt-photo-box{padding:12px}.vt-photo-preview>img{width:78px;height:64px}}
+@media(prefers-reduced-motion:reduce){.vt-spinner{animation:none}.vehicle-card,.service-tile,.rental-card,.article-card,.vt-finder-card,.insurance-partner-logo,.vt-budget-presets button,.shuffle-listings-button{transition:none}.vehicle-card:hover,.rental-card:hover,.article-card:hover,.service-tile:hover,.vt-finder-card:hover,.insurance-partner-logo:hover{transform:none}}
