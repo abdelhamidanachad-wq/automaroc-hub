@@ -191,7 +191,9 @@ export function CarValueEstimator({ vehicles = [] }) {
   </section>;
 }
 
-export function BudgetCarFinder({ vehicles = [], onDetails }) {
+const shuffledRank = (value, seed) => { const text = String(seed) + ':' + String(value?.id ?? value?.brand ?? value?.model ?? ''); let h = 2166136261; for (let i=0;i<text.length;i++) { h ^= text.charCodeAt(i); h = Math.imul(h,16777619); } return h >>> 0; };
+
+export function BudgetCarFinder({ vehicles = [], demoListings = [], demoListingsLoading = false, demoListingsError = false, onDetails }) {
   const [category,setCategory] = useState('Cars');
   const [budgetMin,setBudgetMin] = useState(0);
   const [budgetMax,setBudgetMax] = useState(250000);
@@ -201,29 +203,41 @@ export function BudgetCarFinder({ vehicles = [], onDetails }) {
   const [yearMin,setYearMin] = useState('');
   const [mileageMax,setMileageMax] = useState('');
   const [city,setCity] = useState('');
-  const [sort,setSort] = useState('price');
-  const availableBrands = useMemo(()=>category==='Tous'?[...new Set(vehicles.map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr')):brandsForCategory(category).filter(b=>vehicles.some(v=>v.category===category&&normalize(v.brand)===normalize(b))),[category,vehicles]);
-  const results = useMemo(()=>vehicles.filter(v=>
-    (category==='Tous'||v.category===category) &&
-    (brand==='Toutes'||normalize(v.brand)===normalize(brand)) &&
-    normalize(`${v.brand} ${v.model}`).includes(normalize(model)) &&
-    Number(v.price)>=Number(budgetMin||0) && Number(v.price)<=Number(budgetMax||Number.MAX_SAFE_INTEGER) &&
-    fuelMatches(v.fuel,fuel) &&
-    (!yearMin||Number(v.year)>=Number(yearMin)) &&
-    (!mileageMax||Number(v.mileage)<=Number(mileageMax)) &&
-    (!city||normalize(v.city).includes(normalize(city)))
-  ).sort((a,b)=>sort==='price'?Number(a.price)-Number(b.price):sort==='year'?Number(b.year)-Number(a.year):Number(a.mileage)-Number(b.mileage)),[vehicles,category,brand,model,budgetMin,budgetMax,fuel,yearMin,mileageMax,city,sort]);
-  const reset=()=>{setCategory('Cars');setBudgetMin(0);setBudgetMax(250000);setBrand('Toutes');setModel('');setFuel('Tous');setYearMin('');setMileageMax('');setCity('');setSort('price')};
+  const [sort,setSort] = useState('random');
+  const [shuffleSeed,setShuffleSeed] = useState(()=>Math.random());
+  const allVehicles = useMemo(()=>[...vehicles,...demoListings],[vehicles,demoListings]);
+  const availableBrands = useMemo(()=>category==='Tous'
+    ? [...new Set(allVehicles.map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'))
+    : [...new Set(allVehicles.filter(v=>v.category===category).map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr')),
+    [category,allVehicles]);
+  const results = useMemo(()=>{
+    const matches=allVehicles.filter(v=>
+      (category==='Tous'||v.category===category) &&
+      (brand==='Toutes'||normalize(v.brand)===normalize(brand)) &&
+      normalize(`${v.brand} ${v.model}`).includes(normalize(model)) &&
+      Number(v.price)>=Number(budgetMin||0) &&
+      Number(v.price)<=Number(budgetMax||Number.MAX_SAFE_INTEGER) &&
+      fuelMatches(v.fuel,fuel) &&
+      (!yearMin||Number(v.year)>=Number(yearMin)) &&
+      (!mileageMax||Number(v.mileage)<=Number(mileageMax)) &&
+      (!city||normalize(v.city).includes(normalize(city)))
+    );
+    if(sort==='price') return matches.sort((a,b)=>Number(a.price)-Number(b.price));
+    if(sort==='year') return matches.sort((a,b)=>Number(b.year)-Number(a.year));
+    if(sort==='mileage') return matches.sort((a,b)=>Number(a.mileage)-Number(b.mileage));
+    return matches.sort((a,b)=>shuffledRank(a,shuffleSeed)-shuffledRank(b,shuffleSeed));
+  },[allVehicles,category,brand,model,budgetMin,budgetMax,fuel,yearMin,mileageMax,city,sort,shuffleSeed]);
+  const reset=()=>{setCategory('Cars');setBudgetMin(0);setBudgetMax(250000);setBrand('Toutes');setModel('');setFuel('Tous');setYearMin('');setMileageMax('');setCity('');setSort('random');setShuffleSeed(Math.random())};
   const quickBudgets=[50000,100000,150000,250000,400000,700000];
   return <section className="vehicle-tool-page">
-    <PageIntro eyebrow="RECHERCHE PERSONNALISÉE" title="La bonne voiture, dans votre budget." desc="Choisissez d’abord votre budget. Les résultats sont de vraies annonces publiées dans MOROTTO ; vos filtres affinent la liste instantanément."/>
+    <PageIntro eyebrow="RECHERCHE PERSONNALISÉE" title="La bonne voiture, dans votre budget." desc="Les annonces réelles et les fiches de démonstration sont mélangées par défaut. Les fiches démo portent un label clair et ne sont pas de vraies offres à vendre."/>
     <div className="vt-finder-layout">
       <aside className="vt-filter-panel">
         <div className="vt-filter-heading"><span className="vt-budget-icon"><SlidersHorizontal size={20}/></span><div><h2>Votre budget</h2><p>Commencez par le montant maximum.</p></div></div>
         <div className="vt-budget-display"><span>Budget maximum</span><strong>{money(budgetMax)}</strong><small>{budgetMin>0 ? 'À partir de '+money(budgetMin) : 'Tous les prix en dessous'}</small></div>
         <input aria-label="Budget maximum en dirhams" className="range vt-budget-range" type="range" min="20000" max="1500000" step="10000" value={Math.min(1500000,Math.max(20000,budgetMax))} onChange={e=>setBudgetMax(Math.max(Number(e.target.value),budgetMin))}/>
         <div className="range-labels"><span>20 000 DH</span><span>1 500 000 DH</span></div>
-        <div className="vt-budget-presets" aria-label="Budgets rapides">{quickBudgets.map(amount=><button type="button" key={amount} className={budgetMax===amount?'active':''} onClick={()=>{setBudgetMax(Math.max(amount,budgetMin));}}>{amount>=1000000?(amount/1000000).toLocaleString('fr-MA')+' M':amount>=1000?(amount/1000)+' k':' '+amount} DH</button>)}</div>
+        <div className="vt-budget-presets" aria-label="Budgets rapides">{quickBudgets.map(amount=><button type="button" key={amount} className={budgetMax===amount?'active':''} onClick={()=>setBudgetMax(Math.max(amount,budgetMin))}>{amount>=1000000?(amount/1000000).toLocaleString('fr-MA')+' M':(amount/1000)+' k'} DH</button>)}</div>
         <div className="vt-form-grid"><div><label className="form-label" htmlFor="vf-min">Budget min (DH)</label><input id="vf-min" className="form-select" type="number" min="0" max={budgetMax} step="5000" value={budgetMin} onChange={e=>setBudgetMin(Math.min(budgetMax,Math.max(0,Number(e.target.value)||0)))}/></div><div><label className="form-label" htmlFor="vf-max">Budget max (DH)</label><input id="vf-max" className="form-select" type="number" min={budgetMin} max="5000000" step="5000" value={budgetMax} onChange={e=>setBudgetMax(Math.max(budgetMin,Math.min(5000000,Number(e.target.value)||0)))}/></div></div>
         <div className="vt-divider"><span>Affiner si besoin</span></div>
         <label className="form-label" htmlFor="vf-category">Type de véhicule</label><select id="vf-category" className="form-select" value={category} onChange={e=>{setCategory(e.target.value);setBrand('Toutes')}}>{categories.map(c=><option key={c.value} value={c.value}>{c.label}</option>)}</select>
@@ -235,9 +249,17 @@ export function BudgetCarFinder({ vehicles = [], onDetails }) {
         <button type="button" className="btn secondary full" onClick={reset}><RotateCcw size={15}/> Réinitialiser les critères</button>
       </aside>
       <div className="vt-finder-results">
-        <div className="vt-results-head"><div><span className="eyebrow">ANNONCES RÉELLES PUBLIÉES</span><h2>{results.length} résultat{results.length===1?'':'s'}</h2><p>{vehicles.length ? `${vehicles.length} annonce(s) réelle(s) publiées au total avant filtrage.` : 'Le catalogue est prêt ; aucune annonce réelle n’est publiée pour le moment.'}</p></div><select aria-label="Trier les résultats" className="form-select" value={sort} onChange={e=>setSort(e.target.value)}><option value="price">Prix croissant</option><option value="year">Plus récents</option><option value="mileage">Kilométrage faible</option></select></div>
-        {results.length ? <div className="vt-finder-list">{results.slice(0,30).map(v=><article className="vt-finder-card" key={v.id}><img src={v.image} alt={`${v.brand} ${v.model}`} loading="lazy" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80'}}/><div className="vt-finder-card-body"><div className="vt-card-meta"><span>{v.brand}</span><span>{v.year}</span></div><h3>{v.model}</h3><strong>{money(v.price)}</strong><div className="vt-card-specs"><span><Fuel size={14}/>{v.fuel}</span><span><Gauge size={14}/>{Number(v.mileage||0).toLocaleString('fr-MA')} km</span><span><MapPin size={14}/>{v.city}</span></div><button className="btn primary" type="button" onClick={()=>onDetails?.(v)}>Voir l’annonce <ArrowRight size={15}/></button></div></article>)}</div> : <NoLiveListings title="Aucune annonce publiée dans ce budget" desc={vehicles.length ? 'Élargissez la fourchette, retirez un filtre ou choisissez une autre catégorie. Le moteur recherche uniquement dans les annonces réelles publiées.' : 'Les 1 500 fiches de test sont conservées en brouillon et ne sont volontairement pas affichées comme des voitures à vendre. Dès que des vendeurs publient de vrais véhicules après validation, ils apparaîtront ici automatiquement.'}/>}
-        {results.length>30&&<p className="vt-disclaimer">30 annonces affichées sur {results.length} correspondances. Affinez les filtres pour réduire la liste.</p>}
+        <div className="vt-results-head">
+          <div><span className="eyebrow">RÉSULTATS MÉLANGÉS</span><h2>{results.length.toLocaleString('fr-MA')} résultat{results.length===1?'':'s'}</h2><p>{vehicles.length.toLocaleString('fr-MA')} annonce(s) réelle(s) publiée(s) · {demoListings.length.toLocaleString('fr-MA')} fiche(s) démo{demoListingsLoading?' · chargement…':''}</p></div>
+          <div className="market-sort-controls"><select aria-label="Trier les résultats" className="form-select" value={sort} onChange={e=>setSort(e.target.value)}><option value="random">Ordre mélangé</option><option value="price">Prix croissant</option><option value="year">Plus récents</option><option value="mileage">Kilométrage faible</option></select><button type="button" className="shuffle-listings-button" onClick={()=>{setSort('random');setShuffleSeed(Math.random())}}><Sparkles size={15}/> Mélanger</button></div>
+        </div>
+        {demoListings.length>0&&<div className="vt-demo-note"><Info size={16}/><span>Les fiches marquées <b>DÉMO — PAS UNE OFFRE</b> sont des exemples synthétiques. Elles ne correspondent pas à des voitures réelles à vendre et ne permettent pas de contacter un vendeur.</span></div>}
+        {demoListingsError&&<div className="vt-photo-error">Les fiches démo n’ont pas pu être chargées depuis Supabase. Les annonces réelles publiées restent disponibles.</div>}
+        {results.length ? <div className="vt-finder-list">{results.slice(0,30).map(v=><article className={'vt-finder-card '+(v.demo?'is-demo-listing':'')} key={(v.demo?'demo-':'real-')+v.id}>
+          <div className="vt-finder-card-image"><img src={v.image} alt={`${v.brand} ${v.model}`} loading="lazy" onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80'}}/>{v.demo&&<span className="vt-demo-overlay">DÉMO · PAS UNE OFFRE</span>}</div>
+          <div className="vt-finder-card-body"><div className="vt-card-meta"><span>{v.brand}</span><span>{v.year}</span></div><h3>{v.model}</h3><strong>{money(v.price)}</strong><div className="vt-card-specs"><span><Fuel size={14}/>{v.fuel}</span><span><Gauge size={14}/>{Number(v.mileage||0).toLocaleString('fr-MA')} km</span><span><MapPin size={14}/>{v.city}</span></div><button className="btn primary" type="button" onClick={()=>onDetails?.(v)}>{v.demo?'Voir la fiche démo':'Voir l’annonce'} <ArrowRight size={15}/></button></div>
+        </article>)}</div> : demoListingsLoading ? <NoLiveListings title="Chargement des fiches de démonstration…" desc="Nous récupérons les exemples depuis Supabase. Les fiches seront mélangées aux annonces réelles publiées."/> : <NoLiveListings title="Aucun véhicule dans ce budget" desc={allVehicles.length ? 'Élargissez la fourchette ou retirez un filtre pour trouver plus de résultats.' : 'Aucune annonce réelle n’est publiée pour le moment. Les fiches de démonstration ne sont pas disponibles.'}/>}
+        {results.length>30&&<p className="vt-disclaimer">30 fiches affichées sur {results.length.toLocaleString('fr-MA')} résultats. Modifiez les filtres ou mélangez l’ordre pour explorer d’autres résultats.</p>}
       </div>
     </div>
   </section>;
