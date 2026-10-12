@@ -140,16 +140,24 @@ export default async function handler(req, res) {
       if (pages.length >= 8) break;
     }
 
+    const tokenPresent = (text, token) => {
+      const words = normal(text).split(' ');
+      if (words.includes(token)) return true;
+      return /^\d+$/.test(token) && words.includes('mk' + token);
+    };
     const candidates = pages
       .filter(page => {
         const info = page.imageinfo?.[0];
         const meta = info?.extmetadata || {};
         const title = normal(page.title);
+        const fullText = title + ' ' + normal(textOnly(meta.ImageDescription?.value) + ' ' + textOnly(meta.ObjectName?.value));
         const license = normal(textOnly(meta.LicenseShortName?.value));
         if (!info?.thumburl || !/^https?:\/\//i.test(info.thumburl)) return false;
         if (/\.(svg|gif)$/i.test(page.title)) return false;
         if (/\b(logo|badge|emblem|steering wheel|engine|gearbox|interior|dashboard|headlight|taillight|toy car|model kit|scale model|drawing|diagram|blueprint|brochure|poster|screenshot|hot wheels|matchbox)\b/.test(title)) return false;
-        if (!license || /all rights reserved|non free|fair use/.test(license)) return false;
+        if (!license || /all rights reserved|non free|fair use|non commercial|noncommercial/.test(license)) return false;
+        const modelMatch = [...modelTokens, ...codeTokens].some(token => tokenPresent(fullText, token));
+        if (!modelMatch) return false;
         return true;
       })
       .map(page => ({
