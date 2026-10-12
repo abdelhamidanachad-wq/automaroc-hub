@@ -25,7 +25,7 @@ async function resolveVehiclePhoto(brand, model, year, variant) {
   if (vehiclePhotoCache.has(key)) return vehiclePhotoCache.get(key);
   if (vehiclePhotoInflight.has(key)) return vehiclePhotoInflight.get(key);
   const pending = fetch('/api/demo-vehicle-image?' + new URLSearchParams({
-    brand: String(brand||''), model: String(model||''), year: String(year||''), variant: String(variant)
+    brand: String(brand||''), model: String(model||''), year: String(year||''), variant: String(variant), v: 'road-photo-v2'
   })).then(async response => {
     const data = await response.json().catch(() => ({}));
     const result = response.ok ? data : {imageUrl:null};
