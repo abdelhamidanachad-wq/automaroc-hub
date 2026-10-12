@@ -57,7 +57,7 @@ export function VehiclePhoto({brand, model, year, listingId, alt}) {
   const result = state.key===requestKey ? state.result : null;
   if (result?.imageUrl && !imageFailed) return <>
     <img src={result.imageUrl} alt={alt || [brand,model,year].filter(Boolean).join(' ')} loading="lazy" onError={() => setImageFailed(true)}/>
-    {result.sourceUrl && <a className="vehicle-photo-credit" href={result.sourceUrl} target="_blank" rel="noreferrer" title={`Image: ${result.title || [brand,model].join(' ')} · ${result.artist || 'Wikimedia Commons contributor'} · ${result.license || 'See source page'}`} onClick={e=>e.stopPropagation()}>Photo · {result.license || 'Wikimedia Commons'} <ArrowRight size={11}/></a>}
+    {result.sourceUrl && <a className="vehicle-photo-credit" href={result.sourceUrl} target="_blank" rel="noreferrer" title={`Image: ${result.title || [brand,model].join(' ')} · ${result.artist || 'Wikimedia Commons contributor'} · ${result.license || 'See source page'}`} onClick={e=>e.stopPropagation()}>{(result.artist && result.artist !== 'Wikimedia Commons contributor' ? result.artist : 'Wikimedia Commons').slice(0,34)} · {result.license || 'Licence'} <ArrowRight size={11}/></a>}
   </>;
   return <div className="vehicle-photo-placeholder" role="img" aria-label={`Photo exacte indisponible pour ${brand} ${model}`}>
     <Car size={38} strokeWidth={1.35}/>
