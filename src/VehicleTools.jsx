@@ -260,7 +260,7 @@ export function BudgetCarFinder({ vehicles = [], demoListings = [], demoListings
   const [city,setCity] = useState('');
   const [sort,setSort] = useState('random');
   const [shuffleSeed,setShuffleSeed] = useState(()=>Math.random());
-  const allVehicles = useMemo(()=>[...vehicles,...demoListings],[vehicles,demoListings]);
+  const allVehicles = useMemo(()=>vehicles,[vehicles]);
   const availableBrands = useMemo(()=>category==='Tous'
     ? [...new Set(allVehicles.map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'))
     : [...new Set(allVehicles.filter(v=>v.category===category).map(v=>v.brand).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr')),
