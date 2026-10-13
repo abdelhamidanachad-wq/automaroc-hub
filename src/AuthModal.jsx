@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Mail, LockKeyhole, UserRound, Building2, Wrench, KeyRound, ShieldCheck, CarFront, ArrowRight, LoaderCircle } from 'lucide-react';
+import { X, ShieldCheck, Mail, LockKeyhole, UserRound, Building2, Wrench, KeyRound, CarFront, ArrowRight, LoaderCircle } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 
 const accountTypes = [
