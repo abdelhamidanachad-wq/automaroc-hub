@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Activity, CheckCircle2, CircleAlert, Eye, EyeOff, KeyRound, RefreshCw, Save, ShieldCheck, Trash2, FlaskConical } from "lucide-react";
 import { supabase } from "./lib/supabase.js";
 
-const order = ["google_maps", "apify", "openai", "anthropic", "google_ai"];
+const order = ["google_maps", "google_translate", "deepl", "apify", "openai", "anthropic", "google_ai"];
 const blank = { secret: "", enabled: false, monthlyBudgetUsd: 0, dailyLimit: 0 };
 
 export default function AdminIntegrations() {
