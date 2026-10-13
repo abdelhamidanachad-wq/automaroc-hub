@@ -2,6 +2,8 @@ import { encryptSecret, getAdminSupabase, requireSuperadmin, logIntegrationUsage
 
 const PROVIDERS = {
   google_maps: { label: "Google Maps Platform", description: "Geocoding, Places, Routes and map services", test: testGoogleMaps },
+  google_translate: { label: "Google Cloud Translation", description: "Server-side translation API", test: testGoogleTranslate },
+  deepl: { label: "DeepL", description: "Server-side translation API", test: testDeepL },
   apify: { label: "Apify", description: "Authorized data collection jobs", test: testApify },
   openai: { label: "OpenAI", description: "AI assistants and language models", test: testOpenAI },
   anthropic: { label: "Anthropic", description: "Claude AI assistants", test: testAnthropic },
@@ -10,6 +12,19 @@ const PROVIDERS = {
 function send(res, status, body) { return res.status(status).json(body); }
 function safeProvider(provider) { return Object.prototype.hasOwnProperty.call(PROVIDERS, provider); }
 
+async function testGoogleTranslate(key) {
+  const url = new URL("https://translation.googleapis.com/language/translate/v2");
+  url.searchParams.set("key", key); url.searchParams.set("q", "Bonjour"); url.searchParams.set("target", "en");
+  const response = await fetch(url, { method: "POST" }); const body = await response.json().catch(() => ({}));
+  const ok = response.ok && !!body?.data?.translations?.[0]?.translatedText;
+  return { ok, message: ok ? "Google Cloud Translation key accepted." : "Google Translate response: " + (body?.error?.message || response.status) };
+}
+async function testDeepL(key) {
+  const endpoint = key.startsWith("fx-") ? "https://api-free.deepl.com/v2/translate" : "https://api.deepl.com/v2/translate";
+  const response = await fetch(endpoint, { method: "POST", headers: { Authorization: "DeepL-Auth-Key " + key, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ text: "Bonjour", target_lang: "EN" }) });
+  const body = await response.json().catch(() => ({})); const ok = response.ok && !!body?.translations?.[0]?.text;
+  return { ok, message: ok ? "DeepL key accepted." : "DeepL response: " + (body?.message || response.status) };
+}
 async function testGoogleMaps(key) {
   const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
   url.searchParams.set("address", "Casablanca, Morocco"); url.searchParams.set("key", key);
