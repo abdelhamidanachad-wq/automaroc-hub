@@ -124,3 +124,25 @@
 }
 @media(max-width:400px){.vehicle-grid,.rental-grid,.service-grid{grid-template-columns:1fr}.mobile-bottom-nav span{font-size:10px}.account-metrics{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.main-content{animation:none}.vehicle-card,.service-tile,.rental-card,.article-card,.plan-card,.community-card,.poi-item{transition:none}.vehicle-card:hover,.rental-card:hover,.plan-card:hover,.community-card:hover{transform:none}}
+
+
+/* MOROTTO production polish: navigation, accessible motion, and listing controls */
+:root{scroll-padding-top:92px}body{overflow-x:hidden}.main-content{animation:morottoPageEnter .28s cubic-bezier(.2,.75,.25,1) both}
+@keyframes morottoPageEnter{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.vehicle-card,.service-tile,.rental-card,.article-card,.plan-card,.community-card,.poi-item{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.vehicle-card:hover,.rental-card:hover,.plan-card:hover,.community-card:hover{transform:translateY(-3px);box-shadow:0 18px 42px rgba(26,59,43,.11)}
+.account-list-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.account-edit-listing{border:1px solid #dbe8df;border-radius:9px;background:#f6fbf7;color:#205239;padding:8px 10px;font-size:12px;font-weight:700}
+.account-edit-listing:hover{background:#e7f6ec}.listing-form{animation:morottoPageEnter .24s ease both}
+@media(max-width:760px){
+ .topbar{height:70px;padding:0 16px;gap:10px}.brand-word small{letter-spacing:1px}.desktop-nav{display:none}.top-actions{gap:7px}.top-auth-button{padding:9px 10px;font-size:11px}.auth-user-email{display:none}
+ .main-content{padding-left:14px;padding-right:14px}.page-intro{padding-top:25px}.hero{grid-template-columns:1fr;gap:20px;padding:22px 18px 28px;border-radius:0 0 24px 24px}.hero-visual{min-height:260px}.hero-car{height:270px}
+ .search-panel{grid-template-columns:1fr;gap:15px;padding:18px;margin-top:14px}.search-input-wrap{flex-wrap:wrap}.search-input-wrap input{min-width:0;flex:1}.search-input-wrap button{width:100%;justify-content:center}
+ .service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.service-tile{padding:15px}.section-block,.community-page{padding-bottom:28px}.footer{padding:26px 16px 100px}.footer-bottom{align-items:flex-start;flex-direction:column;gap:12px}
+ .vehicle-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.vehicle-info{padding:12px}.vehicle-info h3{font-size:15px}.vehicle-spec{flex-wrap:wrap;gap:8px}.vehicle-bottom b{font-size:16px}
+ .rental-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rental-card .rental-body{padding:12px}.map-shell{grid-template-columns:1fr}.map-sidebar{max-height:none}.map-canvas{min-height:420px}.poi-list{max-height:220px}
+ .pro-hero{grid-template-columns:1fr}.pro-hero-art{min-height:220px}.plans-grid{grid-template-columns:1fr}.auth-card{padding:27px 20px}
+ .account-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.account-metrics>div{padding:12px 10px}.account-metrics b{font-size:20px}.account-list-head{align-items:flex-start;flex-direction:column}.account-list-head .account-add{width:100%;justify-content:center}
+}
+@media(max-width:400px){.vehicle-grid,.rental-grid,.service-grid{grid-template-columns:1fr}.mobile-bottom-nav span{font-size:10px}.account-metrics{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.main-content{animation:none}.vehicle-card,.service-tile,.rental-card,.article-card,.plan-card,.community-card,.poi-item{transition:none}.vehicle-card:hover,.rental-card:hover,.plan-card:hover,.community-card:hover{transform:none}}
