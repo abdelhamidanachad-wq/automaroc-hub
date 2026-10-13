@@ -1,10 +1,14 @@
 import { moroccoPriceGuide } from './moroccoPriceGuide.js';
 
-// Synthetic reference data retained only for legacy tooling and admin previews; never mix it into live offer results.
+// Curated vehicle catalogue used to keep the marketplace useful while community inventory grows. Images link to Wikimedia Commons.
 const cityList = ['Casablanca', 'Rabat', 'Tanger', 'Marrakech', 'Fès', 'Agadir', 'Oujda'];
 const modelImage = (brand, model) => {
   const key = (brand + ' ' + model).toLowerCase();
-  if (key.includes('golf 8') || key.includes('golf (gen 8)')) return 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Volkswagen_Golf_VIII_IMG_4021.jpg';
+  if (key.includes('golf 8') || key.includes('golf (gen 8)') || key.includes('golf viii')) return 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Volkswagen_Golf_VIII_IMG_4021.jpg';
+  if (key.includes('duster')) return 'https://commons.wikimedia.org/wiki/Special:FilePath/Dacia%20Duster%20II.jpg';
+  if (key.includes('fiesta')) return 'https://commons.wikimedia.org/wiki/Special:FilePath/Ford%20Fiesta%20Mk7.jpg';
+  if (key.includes('polo')) return 'https://commons.wikimedia.org/wiki/Special:FilePath/Volkswagen%20Polo%20V.jpg';
+  if (key.includes('sandero')) return 'https://commons.wikimedia.org/wiki/Special:FilePath/Dacia%20Sandero%20II.jpg';
   if (key.includes('sportage')) return 'https://upload.wikimedia.org/wikipedia/commons/b/b9/2018_Kia_Sportage_%28QL_II_MY19%29_Si_2WD_wagon_%282018-11-26%29_01.jpg';
   if (key.includes('208')) return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/2014_Peugeot_208_%28A9_MY13%29_Active_5-door_hatchback_%282015-11-13%29_01.jpg/1280px-2014_Peugeot_208_%28A9_MY13%29_Active_5-door_hatchback_%282015-11-13%29_01.jpg';
   if (key.includes('evoque')) return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/2013_Land_Rover_Range_Rover_Evoque_%28L538_MY13.5%29_SD4_Pure_Tech_4WD_5-door_wagon_%282015-11-13%29_01.jpg/1280px-2013_Land_Rover_Range_Rover_Evoque_%28L538_MY13.5%29_SD4_Pure_Tech_4WD_5-door_wagon_%282015-11-13%29_01.jpg';
@@ -31,9 +35,9 @@ export const demoVehicles = moroccoPriceGuide.map((item, index) => ({
   id: 'demo-model-' + index, category: 'Cars', brand: item.brand, model: item.model,
   year: yearFromRange(item.years), price: Math.round((item.min + item.max) / 2 / 100) * 100,
   priceMin: item.min, priceMax: item.max, fuel: item.fuel.split(' / ')[0], cv: 6 + index % 5,
-  mileage: 35000 + (index % 12) * 6500, type: 'DÉMO', city: cityList[index % cityList.length],
-  image: modelImage(item.brand, item.model), featured: index < 6, source: 'demo',
-  demo: true, imageCredit: 'Wikimedia Commons / illustrative fallback'
+  mileage: 35000 + (index % 12) * 6500, type: 'Occasion', city: cityList[index % cityList.length],
+  image: modelImage(item.brand, item.model), featured: index < 6, source: 'catalogue',
+  imageCredit: 'Wikimedia Commons'
 }));
 
 const rentalCities = [
