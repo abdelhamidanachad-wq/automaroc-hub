@@ -1,6 +1,6 @@
 import { moroccoPriceGuide } from './moroccoPriceGuide.js';
 
-// All records in this file are synthetic DEMO fixtures. They must never be mistaken for live offers.
+// Synthetic reference data retained only for legacy tooling and admin previews; never mix it into live offer results.
 const cityList = ['Casablanca', 'Rabat', 'Tanger', 'Marrakech', 'Fès', 'Agadir', 'Oujda'];
 const modelImage = (brand, model) => {
   const key = (brand + ' ' + model).toLowerCase();
