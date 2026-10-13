@@ -3,7 +3,7 @@ import { ArrowUpRight, MapPin, Navigation, Search, ShieldCheck, Wrench, Package,
 import { supabase } from './lib/supabase.js';
 import './community-hub.css';
 import { moroccoPriceGuide } from './moroccoPriceGuide.js';
-import { demoRentals, demoInsurance, demoWorkshopPricing, demoParts } from './demoMarketplace.js';
+import { demoWorkshopPricing } from './demoMarketplace.js';
 import { t } from './i18n.js';
 
 const sections = [
