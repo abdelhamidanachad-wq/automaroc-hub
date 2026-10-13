@@ -90,3 +90,6 @@
 
 .account-list-actions .admin-status{margin-left:0}
 @media(max-width:620px){.account-list-actions{justify-content:flex-start}}
+
+.account-list-actions .admin-status{margin-left:0}
+@media(max-width:620px){.account-list-actions{justify-content:flex-start}}
