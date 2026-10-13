@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Mail, LockKeyhole, UserRound, Building2, Wrench, KeyRound, ArrowRight, LoaderCircle } from 'lucide-react';
+import { X, ShieldCheck, Mail, LockKeyhole, UserRound, Building2, Wrench, KeyRound, ShieldCheck, CarFront, ArrowRight, LoaderCircle } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 
 const accountTypes = [
@@ -7,6 +7,9 @@ const accountTypes = [
   { value: 'dealer', label: 'Concessionnaire', icon: Building2 },
   { value: 'garage', label: 'Garage', icon: Wrench },
   { value: 'rental_agency', label: 'Agence de location', icon: KeyRound },
+  { value: 'mechanic', label: 'Mécanicien', icon: Wrench },
+  { value: 'insurance_agency', label: 'Agence d’assurance', icon: ShieldCheck },
+  { value: 'parts_seller', label: 'Vendeur de pièces', icon: CarFront },
 ];
 
 export default function AuthModal({ onClose, onAuthenticated, allowSignups = true }) {
