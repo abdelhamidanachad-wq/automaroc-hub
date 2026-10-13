@@ -248,7 +248,7 @@ export function CarValueEstimator({ vehicles = [] }) {
 
 const shuffledRank = (value, seed) => { const text = String(seed) + ':' + String(value?.id ?? value?.brand ?? value?.model ?? ''); let h = 2166136261; for (let i=0;i<text.length;i++) { h ^= text.charCodeAt(i); h = Math.imul(h,16777619); } return h >>> 0; };
 
-export function BudgetCarFinder({ vehicles = [], demoListings = [], demoListingsLoading = false, demoListingsError = false, onDetails }) {
+export function BudgetCarFinder({ vehicles = [], onDetails }) {
   const [category,setCategory] = useState('Cars');
   const [budgetMin,setBudgetMin] = useState(0);
   const [budgetMax,setBudgetMax] = useState(250000);
