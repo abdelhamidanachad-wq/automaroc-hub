@@ -5,6 +5,10 @@ import AdminIntegrations from './AdminIntegrations.jsx';
 import AdminPlatformSettings from './AdminPlatformSettings.jsx';
 import './admin-platform.css';
 import './admin-integrations.css';
+import './admin-user-management.css';
+import AdminUserManagement from './AdminUserManagement.jsx';
+import AdminMarketplaceOffers from './AdminMarketplaceOffers.jsx';
+import AdminRentalBookings from './AdminRentalBookings.jsx';
 import { ShieldCheck, Users, CarFront, RefreshCw, CheckCircle2, XCircle, Clock3 } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 import { demoVehicles, demoRentals, demoInsurance, demoWorkshopPricing, demoParts } from './demoMarketplace.js';
@@ -17,8 +21,8 @@ export default function AdminDashboard({ user, notify }) {
   const [busyId, setBusyId] = useState('');
   const [page, setPage] = useState('overview');
   const pages = [
-    ['overview','Vue d’ensemble'], ['listings','Annonces & modération'], ['imports','Import autorisé'],
-    ['marketplace','Données démo'], ['integrations','Intégrations & clés'], ['settings','Paramètres plateforme']
+    ['overview','Vue d’ensemble'], ['listings','Annonces & modération'], ['users','Utilisateurs & rôles'], ['offers','Offres & services'], ['bookings','Réservations'], ['imports','Import autorisé'],
+    ['marketplace','Catalogue'], ['integrations','Intégrations & clés'], ['settings','Paramètres plateforme']
   ];
 
   const refresh = async () => {
@@ -50,6 +54,9 @@ export default function AdminDashboard({ user, notify }) {
     {error && <p className="auth-error">{error}</p>}
     {page==='overview' && <><div className="admin-stats"><div><span><Users size={20}/></span><small>Comptes</small><b>{counts.users}</b></div><div><span><Clock3 size={20}/></span><small>À modérer</small><b>{counts.pending}</b></div><div><span><CarFront size={20}/></span><small>Annonces publiées</small><b>{counts.published}</b></div></div><div className="admin-overview-grid"><button onClick={()=>setPage('listings')}><CarFront/><b>Modérer les annonces</b><span>Valider ou rejeter les annonces réelles reçues.</span></button><button onClick={()=>setPage('imports')}><RefreshCw/><b>Importer des annonces</b><span>Lancer une collecte uniquement avec autorisation.</span></button><button onClick={()=>setPage('marketplace')}><ShieldCheck/><b>Catalogue de démonstration</b><span>Contrôler les données fictives avant la présentation.</span></button><button onClick={()=>setPage('integrations')}><Users/><b>Intégrations</b><span>Contrôler les connexions et services.</span></button></div></>}
     {page==='listings' && <><div className="admin-list-head"><div><h2>Modération des annonces</h2><p>Examinez les annonces avant de les publier.</p></div><span className="admin-live"><i/> Contrôle d’accès actif</span></div>{loading ? <div className="admin-empty">Chargement des données…</div> : listings.length ? <div className="admin-table">{listings.map(item=><article className="admin-row" key={item.id}><div className="admin-car-icon"><CarFront size={20}/></div><div className="admin-row-main"><b>{item.brand} {item.model} · {item.year}</b><span>{item.city} · {new Intl.NumberFormat('fr-MA').format(item.price_mad)} DH</span><small>Compte vendeur : {item.owner_id}</small></div><span className={'admin-status '+item.status}>{item.status}</span><div className="admin-row-actions">{item.status !== 'published' && <button disabled={!!busyId} onClick={()=>moderate(item.id,'published')} title="Publier"><CheckCircle2 size={17}/> Publier</button>}{item.status !== 'rejected' && item.status !== 'published' && <button className="reject" disabled={!!busyId} onClick={()=>moderate(item.id,'rejected')} title="Rejeter"><XCircle size={17}/> Rejeter</button>}</div></article>)}</div> : <div className="admin-empty">Aucune annonce réelle à modérer. Les modèles de démonstration sont séparés du flux de modération.</div>}</>}
+    {page==='users' && <AdminUserManagement notify={notify} />}
+    {page==='offers' && <AdminMarketplaceOffers notify={notify} />}
+    {page==='bookings' && <AdminRentalBookings notify={notify} />}
     {page==='imports' && <AdminScraper notify={notify} />}
     {page==='marketplace' && <section className="admin-demo-data"><div className="admin-list-head"><div><h2>Jeu de données de démonstration</h2><p>Les fiches marquées DÉMO sont fictives et ne sont jamais publiées comme annonces réelles.</p></div></div><div className="admin-stats"><div><span><CarFront size={20}/></span><small>Modèles / annonces démo</small><b>{demoVehicles.length}</b></div><div><span><Clock3 size={20}/></span><small>Agences de location démo</small><b>{demoRentals.length}</b></div><div><span><ShieldCheck size={20}/></span><small>Comparaisons assurance</small><b>{demoInsurance.length}</b></div><div><span><CarFront size={20}/></span><small>Guides atelier par modèle</small><b>{demoWorkshopPricing.length}</b></div><div><span><RefreshCw size={20}/></span><small>Références de pièces</small><b>{demoParts.length}</b></div></div><div className="admin-demo-actions"><button onClick={()=>window.dispatchEvent(new CustomEvent('tab',{detail:'buy'}))}>Voir le catalogue démo</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tab',{detail:'community'}))}>Voir location, assurance & pièces</button><button onClick={()=>window.dispatchEvent(new CustomEvent('tab',{detail:'mechanic'}))}>Voir la mécanique</button></div><p className="admin-footnote">Les prix de véhicules, assurances, pièces et ateliers sont des valeurs synthétiques de présentation, basées sur les fourchettes de référence fournies. Ils ne sont pas des cotations validées. Les photos sont hébergées sur Wikimedia Commons ou Unsplash selon disponibilité ; vérifiez la correspondance exacte et les licences avant une mise en production commerciale.</p></section>}
     {page==='integrations' && <AdminIntegrations />}
