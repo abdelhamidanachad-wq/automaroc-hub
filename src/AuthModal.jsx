@@ -10,6 +10,8 @@ const accountTypes = [
   { value: 'mechanic', label: 'Mécanicien', icon: Wrench },
   { value: 'insurance_agency', label: 'Agence d’assurance', icon: ShieldCheck },
   { value: 'parts_seller', label: 'Vendeur de pièces', icon: CarFront },
+  { value: 'partner', label: 'Partenaire', icon: Building2 },
+  { value: 'service_provider', label: 'Prestataire de services', icon: Wrench },
 ];
 
 export default function AuthModal({ onClose, onAuthenticated, allowSignups = true }) {
