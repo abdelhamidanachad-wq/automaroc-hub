@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ArrowUpRight, BadgeCheck, Bike, BookOpen, Building2, CalendarDays, CarFront, CheckCircle2, Globe2, KeyRound, MapPin, MessageCircle, Search, ShieldCheck, ShoppingBag, TrendingUp, Users, Wrench, X } from 'lucide-react';
 import { supabase } from './lib/supabase.js';
 import { demoAccountTypes, sampleSellerProfiles } from './expandedMarketplace.js';
@@ -32,17 +32,20 @@ const parts = [
 const typeLabel = type => ({individual:'Particulier',dealer:'Vendeur professionnel',rental_agency:'Agence de location',garage:'Garage',mechanic:'Mécanicien',parts_seller:'Vendeur de pièces',partner:'Partenaire',service_provider:'Prestataire de services',admin:'Administrateur'}[type] || type);
 const money = n => new Intl.NumberFormat('fr-MA',{maximumFractionDigits:0}).format(n)+' DH';
 
-export default function MarketplaceExpansion({section='brands',vehicles=[],onDetails,notify,user}) {
+export default function MarketplaceExpansion({section='brands',vehicles=[],onDetails,notify,user,initialSellerId}) {
   const [query,setQuery] = useState('');
   const [selectedBrand,setSelectedBrand] = useState('Dacia');
   const [selectedSeller,setSelectedSeller] = useState(null);
+  const [liveSellers,setLiveSellers] = useState([]);
+  useEffect(()=>{ if(!supabase)return; let active=true; supabase.from('profiles').select('*').limit(100).then(({data})=>{ if(!active||!data)return; setLiveSellers(data.map(p=>({id:p.id,name:p.full_name||p.display_name||p.business_name||p.name||'Vendeur MOROTTO',type:p.account_type||p.user_type||'individual',city:p.city||'Maroc',joined:p.created_at?.slice(0,4)||'Membre',listings:0,bio:p.bio||'Profil utilisateur MOROTTO.'}))); }); return()=>{active=false}; },[]);
+  useEffect(()=>{if(!initialSellerId)return; const target=[...liveSellers,...sampleSellerProfiles].find(s=>s.id===initialSellerId); if(target)setSelectedSeller(target);},[initialSellerId,liveSellers]);
   const [booking,setBooking] = useState({city:'Casablanca',pickup:'2026-11-01',dropoff:'2026-11-03',category:'Cars',name:'',phone:'',notes:''});
   const [bookingStatus,setBookingStatus] = useState('');
   const [message,setMessage] = useState('');
   const [messageStatus,setMessageStatus] = useState('');
   const [selectedNews,setSelectedNews] = useState(null);
   const visibleBrands = brandList.filter(b => b.join(' ').toLowerCase().includes(query.toLowerCase()));
-  const sellers = sampleSellerProfiles.filter(s => [s.name,s.city,typeLabel(s.type)].join(' ').toLowerCase().includes(query.toLowerCase()));
+  const sellers = [...liveSellers,...sampleSellerProfiles].filter(s => [s.name,s.city,typeLabel(s.type)].join(' ').toLowerCase().includes(query.toLowerCase()));
   const sellerVehicles = useMemo(()=>vehicles.filter(v=>v.sellerId===selectedSeller?.id).slice(0,12),[vehicles,selectedSeller]);
   const brandedVehicles = useMemo(()=>vehicles.filter(v=>v.brand===selectedBrand).slice(0,12),[vehicles,selectedBrand]);
   const submitBooking = async e => {
@@ -61,8 +64,10 @@ export default function MarketplaceExpansion({section='brands',vehicles=[],onDet
     e.preventDefault();
     if (!user) { setMessageStatus('Connectez-vous pour envoyer un message au vendeur.'); return; }
     if (!selectedSeller || !message.trim()) return;
+    if(String(selectedSeller.id).startsWith('sample-seller-')) { setMessageStatus('Profil fictif : message de démonstration uniquement, aucun message réel n’a été envoyé.'); return; }
+    if(!supabase) { setMessageStatus('La messagerie nécessite la configuration de la base de données.'); return; }
     const {error} = await supabase.from('seller_messages').insert({sender_id:user.id,recipient_profile_id:selectedSeller.id,subject:'Demande via MOROTTO',body:message.trim(),status:'sent'});
-    setMessageStatus(error ? 'La messagerie n’est pas encore disponible pour ce profil. Aucun message n’a été enregistré.' : 'Message envoyé au profil sélectionné.');
+    setMessageStatus(error ? 'Message non envoyé. Vérifiez que la migration de messagerie est appliquée.' : 'Message envoyé au profil sélectionné.');
     if (!error) setMessage('');
   };
   const heading = ({brands:'Marques automobiles',insights:'Analyses du marché',news:'Actualités & histoire',sellers:'Profils vendeurs',accounts:'Comptes de démonstration',booking:'Réserver une location',parts:'Pièces & services',community:'Communauté auto'}[section] || 'MOROTTO');
