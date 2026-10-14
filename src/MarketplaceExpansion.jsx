@@ -43,7 +43,7 @@ const rentalOptions = [
   {city:'Fès',category:'Cars',name:'Citadine mensuelle',period:'mois',price:4200},
   {city:'Casablanca',category:'Cars',name:'SUV mensuel',period:'mois',price:7900}
 ];
-const typeLabel = type => ({individual:'Particulier',dealer:'Vendeur professionnel',rental_agency:'Agence de location',garage:'Garage',mechanic:'Mécanicien',parts_seller:'Vendeur de pièces',partner:'Partenaire',service_provider:'Prestataire de services',admin:'Administrateur'}[type] || type);
+const typeLabel = type => ({individual:'Particulier',dealer:'Vendeur professionnel',rental_agency:'Agence de location',garage:'Garage',mechanic:'Mécanicien',parts_seller:'Vendeur de pièces',partner:'Partenaire',service_provider:'Prestataire de services',insurance_agency:'Agence d’assurance',admin:'Administrateur'}[type] || type);
 const money = n => new Intl.NumberFormat('fr-MA',{maximumFractionDigits:0}).format(n)+' DH';
 
 export default function MarketplaceExpansion({section='brands',vehicles=[],onDetails,notify,user,initialSellerId}) {
@@ -51,7 +51,7 @@ export default function MarketplaceExpansion({section='brands',vehicles=[],onDet
   const [selectedBrand,setSelectedBrand] = useState('Dacia');
   const [selectedSeller,setSelectedSeller] = useState(null);
   const [liveSellers,setLiveSellers] = useState([]);
-  useEffect(()=>{ if(!supabase)return; let active=true; supabase.from('profiles').select('*').limit(100).then(({data})=>{ if(!active||!data)return; setLiveSellers(data.map(p=>({id:p.id,name:p.full_name||p.display_name||p.business_name||p.name||'Vendeur MOROTTO',type:p.account_type||p.user_type||'individual',city:p.city||'Maroc',joined:p.created_at?.slice(0,4)||'Membre',listings:0,bio:p.bio||'Profil utilisateur MOROTTO.'}))); }); return()=>{active=false}; },[]);
+  useEffect(()=>{ if(!supabase)return; let active=true; supabase.from('profiles').select('*').limit(100).then(({data})=>{ if(!active||!data)return; setLiveSellers(data.map(p=>({id:p.id,name:p.full_name||p.display_name||p.business_name||p.name||'Vendeur MOROTTO',type:p.account_type||p.user_type||'individual',city:p.city||'Maroc',joined:p.created_at?.slice(0,4)||'—',listings:0,bio:p.bio||'Profil utilisateur MOROTTO.'}))); }); return()=>{active=false}; },[]);
   useEffect(()=>{if(!initialSellerId)return; const target=[...liveSellers,...sampleSellerProfiles].find(s=>s.id===initialSellerId); if(target)setSelectedSeller(target);},[initialSellerId,liveSellers]);
   const [booking,setBooking] = useState({city:'Casablanca',pickup:'2026-11-01',dropoff:'2026-11-03',category:'Cars',name:'',phone:'',notes:''});
   const [bookingStatus,setBookingStatus] = useState('');
