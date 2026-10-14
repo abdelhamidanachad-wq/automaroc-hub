@@ -1,0 +1,15 @@
+/* MOROTTO interaction polish: restrained motion, responsive controls and accessible loading states. */
+.main-content{animation:morotto-page-in .34s cubic-bezier(.2,.7,.2,1) both}
+.main-content>section,.main-content>.page-intro,.main-content>.hero{animation:morotto-content-in .42s ease-out both}
+.main-content button,.main-content a,.desktop-nav button,.mobile-drawer button{transition:transform .18s ease,background-color .18s ease,border-color .18s ease,box-shadow .18s ease,opacity .18s ease}
+.main-content button:focus-visible,.main-content a:focus-visible,.desktop-nav button:focus-visible,.mobile-drawer button:focus-visible{outline:3px solid #20c997;outline-offset:3px}
+.main-content button:not(:disabled):active{transform:scale(.985)}
+.vehicle-card,.service-tile,.rental-card,.mx-seller-card,.sd-grid article,.forum-topic{animation:morotto-card-in .35s ease-out both}
+.vehicle-grid .vehicle-card:nth-child(3n+2),.service-grid .service-tile:nth-child(3n+2),.sd-grid article:nth-child(3n+2){animation-delay:45ms}
+.vehicle-grid .vehicle-card:nth-child(3n+3),.service-grid .service-tile:nth-child(3n+3),.sd-grid article:nth-child(3n+3){animation-delay:80ms}
+@keyframes morotto-page-in{from{opacity:.7}to{opacity:1}}
+@keyframes morotto-content-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes morotto-card-in{from{opacity:.75;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.morotto-reduced-motion *,@media (prefers-reduced-motion:reduce){animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+@media(max-width:900px){.desktop-nav{max-width:58vw;overflow-x:auto;scrollbar-width:none}.desktop-nav::-webkit-scrollbar{display:none}}
+@media(max-width:650px){.main-content{padding-top:20px}.main-content>section,.main-content>.page-intro{animation-duration:.2s}.desktop-nav{max-width:44vw}}
