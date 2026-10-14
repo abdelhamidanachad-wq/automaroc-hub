@@ -67,7 +67,8 @@ export const sampleSellerProfiles = [
   {id:'sample-seller-10',name:'Premium Drive',type:'rental_agency',city:'Marrakech',joined:'2024',listings:34,bio:'Profil d’agence de location de présentation.'},
   {id:'sample-seller-11',name:'Auto Conseil Maroc',type:'partner',city:'Casablanca',joined:'2024',listings:8,bio:'Partenaire éditorial de présentation.'},
   {id:'sample-seller-12',name:'Mécanique du Nord',type:'mechanic',city:'Tétouan',joined:'2025',listings:9,bio:'Profil professionnel de présentation.'},
-  ...Array.from({length:12},(_,i)=>({id:'sample-seller-'+(i+13),name:['Omar Auto','Tanger Motors','MobiCar','Garage Atlas','Deux Roues Casa','Pro Parts','Marrakech Auto','Rif Services','Agadir Mobilité','Fès Auto Pro','Casa Scooter','Maroc Auto Conseil'][i],type:['individual','dealer','rental_agency','garage','dealer','parts_seller','service_provider','mechanic','partner','dealer','rental_agency','partner'][i],city:cities[(i*3+2)%cities.length],joined:'2025',listings:4+(i*7)%45,bio:'Compte fictif de présentation. Identité et coordonnées non vérifiées.'}))
+  ...Array.from({length:12},(_,i)=>({id:'sample-seller-'+(i+13),name:['Omar Auto','Tanger Motors','MobiCar','Garage Atlas','Deux Roues Casa','Pro Parts','Marrakech Auto','Rif Services','Agadir Mobilité','Fès Auto Pro','Casa Scooter','Maroc Auto Conseil'][i],type:['individual','dealer','rental_agency','garage','dealer','parts_seller','service_provider','mechanic','partner','dealer','rental_agency','partner'][i],city:cities[(i*3+2)%cities.length],joined:'2025',listings:4+(i*7)%45,bio:'Compte fictif de présentation. Identité et coordonnées non vérifiées.'})),
+  {id:'sample-seller-25',name:'Atlas Assurance',type:'insurance_agency',city:'Rabat',joined:'2025',listings:6,bio:'Profil d’agence d’assurance fictif pour présentation.'}
 ];
 export const demoAccountTypes = [
   {type:'individual',label:'Particulier',description:'Favoris, annonces personnelles et messages vendeur.'},
