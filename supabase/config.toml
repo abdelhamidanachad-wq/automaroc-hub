@@ -1,0 +1,4 @@
+project_id = "vfgoqusttddyjjkitesd"
+
+[functions.provision-demo-accounts]
+verify_jwt = true
