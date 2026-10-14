@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Search, SlidersHorizontal, Heart, MapPin, Car, Bike, Truck, Fuel, Gauge, CalendarDays, ShieldCheck, Wrench, Navigation, ChevronRight, ArrowRight, Star, Check, Menu, X, CircleDollarSign, Clock, Info, BadgeCheck, Zap, BookOpen, TrendingUp, Building2, Users, Settings, Plus, Minus, Route, LocateFixed, Phone, Bookmark, Sparkles, ArrowUpRight, Calculator, Wallet, CircleCheck, MapPinned, KeyRound, BriefcaseBusiness } from 'lucide-react';
+import { Search, SlidersHorizontal, Heart, MapPin, Car, Bike, Truck, Fuel, Gauge, CalendarDays, ShieldCheck, Wrench, Navigation, ChevronRight, ArrowRight, Star, Check, Menu, X, CircleDollarSign, Clock, Info, BadgeCheck, Zap, BookOpen, TrendingUp, Building2, Users, Settings, Plus, Minus, Route, LocateFixed, Phone, Bookmark, Sparkles, ArrowUpRight, Calculator, Wallet, CircleCheck, MapPinned, KeyRound, BriefcaseBusiness, MessageCircle } from 'lucide-react';
 import './style.css';
 import './account-ui.css';
 import AuthModal from './AuthModal.jsx';
