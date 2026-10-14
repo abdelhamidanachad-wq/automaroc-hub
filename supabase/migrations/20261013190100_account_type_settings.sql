@@ -1,5 +1,7 @@
 -- MOROTTO account-type settings and guarded account-type management.
 alter table public.profiles add column if not exists account_type text not null default 'individual';
+alter table public.profiles drop constraint if exists profiles_account_type_check;
+alter table public.profiles add constraint profiles_account_type_check check (account_type = any(array['individual','dealer','garage','rental_agency','mechanic','insurance_agency','parts_seller','partner','service_provider']));
 
 create table if not exists public.account_type_settings (
   account_type text primary key,
@@ -49,3 +51,5 @@ end;
 $$;
 revoke all on function public.admin_set_account_type(uuid,text) from public;
 grant execute on function public.admin_set_account_type(uuid,text) to authenticated;
+
+ grant select on public.account_type_settings to anon, authenticated;
