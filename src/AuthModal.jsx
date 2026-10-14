@@ -18,6 +18,7 @@ export default function AuthModal({ onClose, onAuthenticated, allowSignups = tru
   const [mode, setMode] = useState(allowSignups ? 'signup' : 'login');
   const [name, setName] = useState('');
   const [accountType, setAccountType] = useState('individual');
+  const [availableAccountTypes, setAvailableAccountTypes] = useState(accountTypes);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -25,6 +26,7 @@ export default function AuthModal({ onClose, onAuthenticated, allowSignups = tru
   const [message, setMessage] = useState('');
 
   React.useEffect(() => { if (!allowSignups) setMode('login'); }, [allowSignups]);
+  React.useEffect(() => { let active=true; if(!supabase)return; supabase.from('account_type_settings').select('account_type,label,enabled').eq('enabled',true).order('sort_order').then(({data})=>{ if(!active||!data?.length)return; const next=data.map(row=>({...accountTypes.find(t=>t.value===row.account_type),value:row.account_type,label:row.label})).filter(t=>t.icon); if(next.length){setAvailableAccountTypes(next);setAccountType(current=>next.some(t=>t.value===current)?current:next[0].value);} }); return()=>{active=false}; },[]);
 
   const resetPassword = async () => {
     setError(''); setMessage('');
@@ -112,7 +114,7 @@ export default function AuthModal({ onClose, onAuthenticated, allowSignups = tru
       <form onSubmit={submit} className="auth-form">
         {mode === 'signup' && <>
           <label>Nom affiché<input value={name} onChange={e=>setName(e.target.value)} autoComplete="name" placeholder="Votre nom" maxLength={80} required/></label>
-          <label>Type de compte<select value={accountType} onChange={e=>setAccountType(e.target.value)}>{accountTypes.map(t=><option key={t.value} value={t.value}>{t.label}</option>)}</select></label>
+          <label>Type de compte<select value={accountType} onChange={e=>setAccountType(e.target.value)}>{availableAccountTypes.map(t=><option key={t.value} value={t.value}>{t.label}</option>)}</select></label>
         </>}
         <label>Adresse e-mail<span className="auth-input"><Mail size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="vous@exemple.com" required/></span></label>
         <label>Mot de passe<span className="auth-input"><LockKeyhole size={17}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} minLength={8} placeholder="8 caractères minimum" required/></span></label>
