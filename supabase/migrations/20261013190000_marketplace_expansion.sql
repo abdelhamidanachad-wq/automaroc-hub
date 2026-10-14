@@ -43,3 +43,6 @@ drop policy if exists "Requesters and assigned agencies can read bookings" on pu
 create policy "Requesters and assigned agencies can read bookings" on public.rental_bookings for select to authenticated using (requester_id = auth.uid() or agency_id = auth.uid());
 drop policy if exists "Assigned agencies can update bookings" on public.rental_bookings;
 create policy "Assigned agencies can update bookings" on public.rental_bookings for update to authenticated using (agency_id = auth.uid()) with check (agency_id = auth.uid());
+
+ grant select, insert, update on public.seller_messages to authenticated;
+ grant select, insert, update on public.rental_bookings to authenticated;
