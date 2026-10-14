@@ -13,3 +13,5 @@
 .morotto-reduced-motion *{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:900px){.desktop-nav{max-width:58vw;overflow-x:auto;scrollbar-width:none}.desktop-nav::-webkit-scrollbar{display:none}}
 @media(max-width:650px){.main-content{padding-top:20px}.main-content>section,.main-content>.page-intro{animation-duration:.2s}.desktop-nav{max-width:44vw}}
+
+/* Build verification touch after forum syntax correction. */
