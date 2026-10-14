@@ -10,7 +10,9 @@ const types = {
   rental_agency: {label:'Agence de location', icon:KeyRound, desc:'Gérez vos annonces et votre activité de location.'},
   mechanic: {label:'Mécanicien', icon:Wrench, desc:'Présentez votre activité et gérez votre vitrine professionnelle.'},
   insurance_agency: {label:'Agence d’assurance', icon:ShieldCheck, desc:'Préparez votre vitrine d’assurance automobile.'},
-  parts_seller: {label:'Vendeur de pièces', icon:CarFront, desc:'Gérez votre catalogue de pièces et vos annonces.'}
+  parts_seller: {label:'Vendeur de pièces', icon:CarFront, desc:'Gérez votre catalogue de pièces et vos annonces.'},
+  partner: {label:'Partenaire', icon:Building2, desc:'Gérez vos offres et votre vitrine partenaire.'},
+  service_provider: {label:'Prestataire de services', icon:Wrench, desc:'Gérez vos services, devis et rendez-vous.'}
 };
 
 export default function AccountDashboard({user, notify}) {
