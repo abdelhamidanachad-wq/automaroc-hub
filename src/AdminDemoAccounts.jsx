@@ -15,7 +15,7 @@ export default function AdminDemoAccounts({ notify }) {
     setLoading(true); setError('');
     const { data, error: queryError } = await supabase
       .from('demo_test_accounts')
-      .select('email,display_name,account_type,city,purpose,is_demo')
+      .select('email,display_name,account_type,city,purpose,is_demo,auth_user_id,provisioned_at')
       .order('account_type');
     if (queryError) setError(queryError.message);
     else setAccounts(data || []);
@@ -46,7 +46,7 @@ export default function AdminDemoAccounts({ notify }) {
     </form>
     {error && <p className="auth-error" role="alert">{error}</p>}
     {result?.accounts && <div className="demo-result"><b>Provisionnement terminé</b><p>{result.accounts.filter(x=>x.status==='created').length} créés · {result.accounts.filter(x=>x.status==='reset').length} réinitialisés.</p><button type="button" onClick={()=>{navigator.clipboard?.writeText(result.accounts.map(x=>x.email+'\t'+password+'\t'+x.account_type).join('\n'));notify?.('Table des identifiants copiée.')}}><Copy size={15}/> Copier les identifiants avec le mot de passe temporaire</button></div>}
-    <div className="demo-credentials-table-wrap"><table className="demo-credentials-table"><thead><tr><th>Nom de test</th><th>Rôle</th><th>Ville</th><th>Email de connexion</th><th>Test principal</th></tr></thead><tbody>{loading?<tr><td colSpan="5">Chargement des comptes…</td></tr>:accounts.map(account=><tr key={account.email}><td>{account.display_name}<small>FICTIF</small></td><td>{account.account_type}</td><td>{account.city}</td><td><code>{account.email}</code></td><td>{account.purpose}</td></tr>)}</tbody></table></div>
+    <div className="demo-credentials-table-wrap"><table className="demo-credentials-table"><thead><tr><th>Nom de test</th><th>Rôle</th><th>Ville</th><th>Email de connexion</th><th>Statut Auth</th><th>Test principal</th></tr></thead><tbody>{loading?<tr><td colSpan="6">Chargement des comptes…</td></tr>:accounts.map(account=><tr key={account.email}><td>{account.display_name}<small>FICTIF</small></td><td>{account.account_type}</td><td>{account.city}</td><td><code>{account.email}</code></td><td>{account.auth_user_id ? 'Provisionné' : 'À créer dans Auth'}</td><td>{account.purpose}</td></tr>)}</tbody></table></div>
     <p className="admin-footnote">Les emails listés ne deviennent des identifiants fonctionnels qu’après un provisionnement réussi. Les comptes d’assurance ne sont volontairement pas créés.</p>
   </section>;
 }
